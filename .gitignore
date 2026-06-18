@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+Input video/
+*.log
+.git_old/
+scratch/
+outputs_gpu/
+dummy.jpg
+test_baseline_load.py

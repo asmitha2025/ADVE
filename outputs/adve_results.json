@@ -1,0 +1,3165 @@
+{
+  "summary": {
+    "total_frames": 450,
+    "encoder_calls": 15,
+    "delta_frames": 435,
+    "encoder_savings_pct": 96.67,
+    "mean_cosine_sim": 0.9501,
+    "mean_delta_cosine_sim": 0.9484,
+    "min_delta_cosine_sim": 0.8482,
+    "pct_above_threshold": 99.77,
+    "hypothesis_validated": true
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 1,
+      "cosine_sim": 0.9753706455230713,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 2,
+      "cosine_sim": 0.9762501120567322,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 3,
+      "cosine_sim": 0.9710516333580017,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 4,
+      "cosine_sim": 0.9748290181159973,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 5,
+      "cosine_sim": 0.9768524765968323,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 6,
+      "cosine_sim": 0.9676334857940674,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 7,
+      "cosine_sim": 0.9715220928192139,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 8,
+      "cosine_sim": 0.9618348479270935,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 9,
+      "cosine_sim": 0.9497324228286743,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 10,
+      "cosine_sim": 0.956312894821167,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 11,
+      "cosine_sim": 0.9501697421073914,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 12,
+      "cosine_sim": 0.9116069674491882,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 13,
+      "cosine_sim": 0.9442499279975891,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 14,
+      "cosine_sim": 0.943244993686676,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 15,
+      "cosine_sim": 0.9335958361625671,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 16,
+      "cosine_sim": 0.9580380916595459,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 17,
+      "cosine_sim": 0.9539202451705933,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 18,
+      "cosine_sim": 0.9585312008857727,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 19,
+      "cosine_sim": 0.9598395824432373,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 20,
+      "cosine_sim": 0.9585175514221191,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 21,
+      "cosine_sim": 0.9547107815742493,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 22,
+      "cosine_sim": 0.9516313076019287,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 23,
+      "cosine_sim": 0.9446654319763184,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 24,
+      "cosine_sim": 0.9376451969146729,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 25,
+      "cosine_sim": 0.9377058148384094,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 26,
+      "cosine_sim": 0.9423666596412659,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 27,
+      "cosine_sim": 0.9519933462142944,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 28,
+      "cosine_sim": 0.9551880359649658,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 29,
+      "cosine_sim": 0.9538419842720032,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 30,
+      "cosine_sim": 0.9518879652023315,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 31,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 32,
+      "cosine_sim": 0.9792380332946777,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 33,
+      "cosine_sim": 0.9837944507598877,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 34,
+      "cosine_sim": 0.9613956212997437,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 35,
+      "cosine_sim": 0.9706616997718811,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 36,
+      "cosine_sim": 0.9533519148826599,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 37,
+      "cosine_sim": 0.9379085302352905,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 38,
+      "cosine_sim": 0.9486665725708008,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 39,
+      "cosine_sim": 0.9569714069366455,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 40,
+      "cosine_sim": 0.9634214043617249,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 41,
+      "cosine_sim": 0.9586277604103088,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 42,
+      "cosine_sim": 0.9543380737304688,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 43,
+      "cosine_sim": 0.9527266025543213,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 44,
+      "cosine_sim": 0.9538783431053162,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 45,
+      "cosine_sim": 0.949883222579956,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 46,
+      "cosine_sim": 0.9363118410110474,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 47,
+      "cosine_sim": 0.9432073831558228,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 48,
+      "cosine_sim": 0.9386045336723328,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 49,
+      "cosine_sim": 0.9396486878395081,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 50,
+      "cosine_sim": 0.9351879954338074,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 51,
+      "cosine_sim": 0.9273268580436707,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 52,
+      "cosine_sim": 0.928401529788971,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 53,
+      "cosine_sim": 0.9106948971748352,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 54,
+      "cosine_sim": 0.9331825375556946,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 55,
+      "cosine_sim": 0.925829291343689,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 56,
+      "cosine_sim": 0.9152403473854065,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 57,
+      "cosine_sim": 0.916389524936676,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 58,
+      "cosine_sim": 0.9004464745521545,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 59,
+      "cosine_sim": 0.9055708646774292,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 60,
+      "cosine_sim": 0.8993551135063171,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 61,
+      "cosine_sim": 0.9184862375259399,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 62,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 63,
+      "cosine_sim": 0.9769744873046875,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 64,
+      "cosine_sim": 0.9895399212837219,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 65,
+      "cosine_sim": 0.9861097931861877,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 66,
+      "cosine_sim": 0.9794555306434631,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 67,
+      "cosine_sim": 0.9830881357192993,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 68,
+      "cosine_sim": 0.9800035357475281,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 69,
+      "cosine_sim": 0.9732882976531982,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 70,
+      "cosine_sim": 0.9782100915908813,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 71,
+      "cosine_sim": 0.9687517285346985,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 72,
+      "cosine_sim": 0.963505208492279,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 73,
+      "cosine_sim": 0.9627459049224854,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 74,
+      "cosine_sim": 0.9653152823448181,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 75,
+      "cosine_sim": 0.9619047045707703,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 76,
+      "cosine_sim": 0.969123125076294,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 77,
+      "cosine_sim": 0.9629945755004883,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 78,
+      "cosine_sim": 0.9744805693626404,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 79,
+      "cosine_sim": 0.9662538170814514,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 80,
+      "cosine_sim": 0.9670998454093933,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 81,
+      "cosine_sim": 0.9580622911453247,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 82,
+      "cosine_sim": 0.9708430767059326,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 83,
+      "cosine_sim": 0.9712507128715515,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 84,
+      "cosine_sim": 0.9710266590118408,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 85,
+      "cosine_sim": 0.9705968499183655,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 86,
+      "cosine_sim": 0.9746882915496826,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 87,
+      "cosine_sim": 0.9711470007896423,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 88,
+      "cosine_sim": 0.9597842693328857,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 89,
+      "cosine_sim": 0.9639822840690613,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 90,
+      "cosine_sim": 0.9705755114555359,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 91,
+      "cosine_sim": 0.9616919755935669,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 92,
+      "cosine_sim": 0.9536923170089722,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 93,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 94,
+      "cosine_sim": 0.9930303692817688,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 95,
+      "cosine_sim": 0.9720684885978699,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 96,
+      "cosine_sim": 0.9739950299263,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 97,
+      "cosine_sim": 0.9723270535469055,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 98,
+      "cosine_sim": 0.9736270308494568,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 99,
+      "cosine_sim": 0.969883143901825,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 100,
+      "cosine_sim": 0.9769473671913147,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 101,
+      "cosine_sim": 0.9674477577209473,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 102,
+      "cosine_sim": 0.9598976373672485,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 103,
+      "cosine_sim": 0.967460572719574,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 104,
+      "cosine_sim": 0.9616537094116211,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 105,
+      "cosine_sim": 0.9558244347572327,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 106,
+      "cosine_sim": 0.945936918258667,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 107,
+      "cosine_sim": 0.9457118511199951,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 108,
+      "cosine_sim": 0.9409559369087219,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 109,
+      "cosine_sim": 0.9475062489509583,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 110,
+      "cosine_sim": 0.9513680934906006,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 111,
+      "cosine_sim": 0.9540419578552246,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 112,
+      "cosine_sim": 0.9440749883651733,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 113,
+      "cosine_sim": 0.9424925446510315,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 114,
+      "cosine_sim": 0.936185359954834,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 115,
+      "cosine_sim": 0.9253642559051514,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 116,
+      "cosine_sim": 0.9247002005577087,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 117,
+      "cosine_sim": 0.9315871596336365,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 118,
+      "cosine_sim": 0.9188593029975891,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 119,
+      "cosine_sim": 0.9289699196815491,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 120,
+      "cosine_sim": 0.9421473741531372,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 121,
+      "cosine_sim": 0.9325613379478455,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 122,
+      "cosine_sim": 0.9277673959732056,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 123,
+      "cosine_sim": 0.930632472038269,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 124,
+      "cosine_sim": 1.0000001192092896,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 125,
+      "cosine_sim": 0.9861355423927307,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 126,
+      "cosine_sim": 0.9808626770973206,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 127,
+      "cosine_sim": 0.9735926389694214,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 128,
+      "cosine_sim": 0.9793093204498291,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 129,
+      "cosine_sim": 0.9658722281455994,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 130,
+      "cosine_sim": 0.9695496559143066,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 131,
+      "cosine_sim": 0.9674805998802185,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 132,
+      "cosine_sim": 0.9662056565284729,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 133,
+      "cosine_sim": 0.9596376419067383,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 134,
+      "cosine_sim": 0.954521656036377,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 135,
+      "cosine_sim": 0.9602873921394348,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 136,
+      "cosine_sim": 0.9492650032043457,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 137,
+      "cosine_sim": 0.9229490160942078,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 138,
+      "cosine_sim": 0.9226663112640381,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 139,
+      "cosine_sim": 0.9358744621276855,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 140,
+      "cosine_sim": 0.9344429969787598,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 141,
+      "cosine_sim": 0.9410443902015686,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 142,
+      "cosine_sim": 0.9352868795394897,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 143,
+      "cosine_sim": 0.9391015768051147,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 144,
+      "cosine_sim": 0.8550696969032288,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 145,
+      "cosine_sim": 0.8482139706611633,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 146,
+      "cosine_sim": 0.8713557124137878,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 147,
+      "cosine_sim": 0.8887439370155334,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 148,
+      "cosine_sim": 0.8867720365524292,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 149,
+      "cosine_sim": 0.9065789580345154,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 150,
+      "cosine_sim": 0.8949437141418457,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 151,
+      "cosine_sim": 0.9104763865470886,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 152,
+      "cosine_sim": 0.9007543921470642,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 153,
+      "cosine_sim": 0.9227950572967529,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 154,
+      "cosine_sim": 0.8654372096061707,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 155,
+      "cosine_sim": 0.9999999403953552,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 156,
+      "cosine_sim": 0.9560969471931458,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 157,
+      "cosine_sim": 0.986451268196106,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 158,
+      "cosine_sim": 0.9658623933792114,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 159,
+      "cosine_sim": 0.9590396285057068,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 160,
+      "cosine_sim": 0.9363165497779846,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 161,
+      "cosine_sim": 0.9538731575012207,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 162,
+      "cosine_sim": 0.9541562795639038,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 163,
+      "cosine_sim": 0.961050271987915,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 164,
+      "cosine_sim": 0.9515190720558167,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 165,
+      "cosine_sim": 0.9417818784713745,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 166,
+      "cosine_sim": 0.9561924934387207,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 167,
+      "cosine_sim": 0.9485516548156738,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 168,
+      "cosine_sim": 0.9508937001228333,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 169,
+      "cosine_sim": 0.930462658405304,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 170,
+      "cosine_sim": 0.928070068359375,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 171,
+      "cosine_sim": 0.9275347590446472,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 172,
+      "cosine_sim": 0.9341709613800049,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 173,
+      "cosine_sim": 0.9383569955825806,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 174,
+      "cosine_sim": 0.9396461248397827,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 175,
+      "cosine_sim": 0.941583514213562,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 176,
+      "cosine_sim": 0.9267325401306152,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 177,
+      "cosine_sim": 0.9321374893188477,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 178,
+      "cosine_sim": 0.9315213561058044,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 179,
+      "cosine_sim": 0.9186124801635742,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 180,
+      "cosine_sim": 0.9362484812736511,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 181,
+      "cosine_sim": 0.9057884216308594,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 182,
+      "cosine_sim": 0.9164379239082336,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 183,
+      "cosine_sim": 0.9165305495262146,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 184,
+      "cosine_sim": 0.8916053771972656,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 185,
+      "cosine_sim": 0.8767334222793579,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 186,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 187,
+      "cosine_sim": 0.9858686327934265,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 188,
+      "cosine_sim": 0.9769490957260132,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 189,
+      "cosine_sim": 0.9783940315246582,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 190,
+      "cosine_sim": 0.9643820524215698,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 191,
+      "cosine_sim": 0.9629020094871521,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 192,
+      "cosine_sim": 0.930692195892334,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 193,
+      "cosine_sim": 0.903371274471283,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 194,
+      "cosine_sim": 0.9410809278488159,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 195,
+      "cosine_sim": 0.9309059977531433,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 196,
+      "cosine_sim": 0.9270424842834473,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 197,
+      "cosine_sim": 0.9348858594894409,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 198,
+      "cosine_sim": 0.9227100014686584,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 199,
+      "cosine_sim": 0.9342594146728516,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 200,
+      "cosine_sim": 0.9262385368347168,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 201,
+      "cosine_sim": 0.9371175169944763,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 202,
+      "cosine_sim": 0.9437039494514465,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 203,
+      "cosine_sim": 0.9436365365982056,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 204,
+      "cosine_sim": 0.9504481554031372,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 205,
+      "cosine_sim": 0.9406789541244507,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 206,
+      "cosine_sim": 0.9415911436080933,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 207,
+      "cosine_sim": 0.9487683176994324,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 208,
+      "cosine_sim": 0.9145346879959106,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 209,
+      "cosine_sim": 0.941963791847229,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 210,
+      "cosine_sim": 0.9506229758262634,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 211,
+      "cosine_sim": 0.9433019757270813,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 212,
+      "cosine_sim": 0.953144907951355,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 213,
+      "cosine_sim": 0.9534534811973572,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 214,
+      "cosine_sim": 0.9499961733818054,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 215,
+      "cosine_sim": 0.9540959596633911,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 216,
+      "cosine_sim": 0.9513922929763794,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 217,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 218,
+      "cosine_sim": 0.9926439523696899,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 219,
+      "cosine_sim": 0.9909504055976868,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 220,
+      "cosine_sim": 0.9924209713935852,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 221,
+      "cosine_sim": 0.9799286723136902,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 222,
+      "cosine_sim": 0.9848644137382507,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 223,
+      "cosine_sim": 0.9840123057365417,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 224,
+      "cosine_sim": 0.971372663974762,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 225,
+      "cosine_sim": 0.9694929718971252,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 226,
+      "cosine_sim": 0.9772602915763855,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 227,
+      "cosine_sim": 0.9733969569206238,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 228,
+      "cosine_sim": 0.9639633893966675,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 229,
+      "cosine_sim": 0.9667555689811707,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 230,
+      "cosine_sim": 0.9656556248664856,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 231,
+      "cosine_sim": 0.9610266089439392,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 232,
+      "cosine_sim": 0.9632024765014648,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 233,
+      "cosine_sim": 0.9456613063812256,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 234,
+      "cosine_sim": 0.9720140099525452,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 235,
+      "cosine_sim": 0.9442319869995117,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 236,
+      "cosine_sim": 0.9590477347373962,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 237,
+      "cosine_sim": 0.9532206058502197,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 238,
+      "cosine_sim": 0.9586790800094604,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 239,
+      "cosine_sim": 0.9765101075172424,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 240,
+      "cosine_sim": 0.9555245041847229,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 241,
+      "cosine_sim": 0.9578796029090881,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 242,
+      "cosine_sim": 0.9652590751647949,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 243,
+      "cosine_sim": 0.9653512239456177,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 244,
+      "cosine_sim": 0.9664415717124939,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 245,
+      "cosine_sim": 0.9744020104408264,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 246,
+      "cosine_sim": 0.9689533114433289,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 247,
+      "cosine_sim": 0.9608321189880371,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 248,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 249,
+      "cosine_sim": 0.9868618249893188,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 250,
+      "cosine_sim": 0.9863893985748291,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 251,
+      "cosine_sim": 0.9762651324272156,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 252,
+      "cosine_sim": 0.9710043668746948,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 253,
+      "cosine_sim": 0.9710057377815247,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 254,
+      "cosine_sim": 0.9738973379135132,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 255,
+      "cosine_sim": 0.9627282023429871,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 256,
+      "cosine_sim": 0.9649884104728699,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 257,
+      "cosine_sim": 0.9543226361274719,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 258,
+      "cosine_sim": 0.9590003490447998,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 259,
+      "cosine_sim": 0.9633774161338806,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 260,
+      "cosine_sim": 0.9495081305503845,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 261,
+      "cosine_sim": 0.94278883934021,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 262,
+      "cosine_sim": 0.938632607460022,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 263,
+      "cosine_sim": 0.9328873157501221,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 264,
+      "cosine_sim": 0.9542407989501953,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 265,
+      "cosine_sim": 0.9437573552131653,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 266,
+      "cosine_sim": 0.9581202268600464,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 267,
+      "cosine_sim": 0.9436131715774536,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 268,
+      "cosine_sim": 0.9417485594749451,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 269,
+      "cosine_sim": 0.9145775437355042,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 270,
+      "cosine_sim": 0.9392370581626892,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 271,
+      "cosine_sim": 0.9463407397270203,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 272,
+      "cosine_sim": 0.927383542060852,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 273,
+      "cosine_sim": 0.9379680752754211,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 274,
+      "cosine_sim": 0.9192817807197571,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 275,
+      "cosine_sim": 0.9371815919876099,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 276,
+      "cosine_sim": 0.9030987024307251,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 277,
+      "cosine_sim": 0.9515840411186218,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 278,
+      "cosine_sim": 0.9483494162559509,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 279,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 280,
+      "cosine_sim": 0.9836709499359131,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 281,
+      "cosine_sim": 0.9847961068153381,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 282,
+      "cosine_sim": 0.9793292880058289,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 283,
+      "cosine_sim": 0.9748412370681763,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 284,
+      "cosine_sim": 0.9683966636657715,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 285,
+      "cosine_sim": 0.9641101360321045,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 286,
+      "cosine_sim": 0.9720872044563293,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 287,
+      "cosine_sim": 0.9703013300895691,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 288,
+      "cosine_sim": 0.9637951850891113,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 289,
+      "cosine_sim": 0.9542799592018127,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 290,
+      "cosine_sim": 0.9647611975669861,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 291,
+      "cosine_sim": 0.9662826657295227,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 292,
+      "cosine_sim": 0.9410446882247925,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 293,
+      "cosine_sim": 0.9394378662109375,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 294,
+      "cosine_sim": 0.9376006722450256,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 295,
+      "cosine_sim": 0.9511328935623169,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 296,
+      "cosine_sim": 0.948925793170929,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 297,
+      "cosine_sim": 0.9662553668022156,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 298,
+      "cosine_sim": 0.9484387040138245,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 299,
+      "cosine_sim": 0.928795576095581,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 300,
+      "cosine_sim": 0.9487516283988953,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 301,
+      "cosine_sim": 0.9529054760932922,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 302,
+      "cosine_sim": 0.956313967704773,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 303,
+      "cosine_sim": 0.9600350260734558,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 304,
+      "cosine_sim": 0.9525014162063599,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 305,
+      "cosine_sim": 0.9473844766616821,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 306,
+      "cosine_sim": 0.9364312291145325,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 307,
+      "cosine_sim": 0.939091682434082,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 308,
+      "cosine_sim": 0.9425341486930847,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 309,
+      "cosine_sim": 0.9400615096092224,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 310,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 311,
+      "cosine_sim": 0.9847132563591003,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 312,
+      "cosine_sim": 0.9667784571647644,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 313,
+      "cosine_sim": 0.939559817314148,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 314,
+      "cosine_sim": 0.9355428814888,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 315,
+      "cosine_sim": 0.9249448180198669,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 316,
+      "cosine_sim": 0.9515279531478882,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 317,
+      "cosine_sim": 0.9129139184951782,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 318,
+      "cosine_sim": 0.9085670113563538,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 319,
+      "cosine_sim": 0.9208810329437256,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 320,
+      "cosine_sim": 0.9412816762924194,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 321,
+      "cosine_sim": 0.9331606030464172,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 322,
+      "cosine_sim": 0.932778537273407,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 323,
+      "cosine_sim": 0.9298895001411438,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 324,
+      "cosine_sim": 0.9305568337440491,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 325,
+      "cosine_sim": 0.9297811985015869,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 326,
+      "cosine_sim": 0.8975979685783386,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 327,
+      "cosine_sim": 0.8975480198860168,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 328,
+      "cosine_sim": 0.9330347180366516,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 329,
+      "cosine_sim": 0.925320565700531,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 330,
+      "cosine_sim": 0.9319036602973938,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 331,
+      "cosine_sim": 0.9168704152107239,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 332,
+      "cosine_sim": 0.9092287421226501,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 333,
+      "cosine_sim": 0.9113897681236267,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 334,
+      "cosine_sim": 0.9232625365257263,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 335,
+      "cosine_sim": 0.9217633008956909,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 336,
+      "cosine_sim": 0.9090368747711182,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 337,
+      "cosine_sim": 0.9134118556976318,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 338,
+      "cosine_sim": 0.9009333252906799,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 339,
+      "cosine_sim": 0.9291070699691772,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 340,
+      "cosine_sim": 0.9229220151901245,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 341,
+      "cosine_sim": 1.0000001192092896,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 342,
+      "cosine_sim": 0.9881024360656738,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 343,
+      "cosine_sim": 0.9880998134613037,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 344,
+      "cosine_sim": 0.9722217321395874,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 345,
+      "cosine_sim": 0.9396544694900513,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 346,
+      "cosine_sim": 0.9551916122436523,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 347,
+      "cosine_sim": 0.9595531225204468,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 348,
+      "cosine_sim": 0.9633342027664185,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 349,
+      "cosine_sim": 0.9606432318687439,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 350,
+      "cosine_sim": 0.9591723680496216,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 351,
+      "cosine_sim": 0.9614179134368896,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 352,
+      "cosine_sim": 0.9591525793075562,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 353,
+      "cosine_sim": 0.9441462159156799,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 354,
+      "cosine_sim": 0.9624946713447571,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 355,
+      "cosine_sim": 0.9633617997169495,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 356,
+      "cosine_sim": 0.9623344540596008,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 357,
+      "cosine_sim": 0.9551883935928345,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 358,
+      "cosine_sim": 0.9447332620620728,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 359,
+      "cosine_sim": 0.9481760859489441,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 360,
+      "cosine_sim": 0.9533833861351013,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 361,
+      "cosine_sim": 0.954289436340332,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 362,
+      "cosine_sim": 0.9409673810005188,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 363,
+      "cosine_sim": 0.9333321452140808,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 364,
+      "cosine_sim": 0.9587211012840271,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 365,
+      "cosine_sim": 0.9578254222869873,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 366,
+      "cosine_sim": 0.9505632519721985,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 367,
+      "cosine_sim": 0.9532904028892517,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 368,
+      "cosine_sim": 0.949323296546936,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 369,
+      "cosine_sim": 0.9493972659111023,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 370,
+      "cosine_sim": 0.9487031698226929,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 371,
+      "cosine_sim": 0.9478543400764465,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 372,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 373,
+      "cosine_sim": 0.9800083637237549,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 374,
+      "cosine_sim": 0.9740710258483887,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 375,
+      "cosine_sim": 0.9689881205558777,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 376,
+      "cosine_sim": 0.9744417071342468,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 377,
+      "cosine_sim": 0.9537764191627502,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 378,
+      "cosine_sim": 0.9598773121833801,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 379,
+      "cosine_sim": 0.9610165953636169,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 380,
+      "cosine_sim": 0.938751757144928,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 381,
+      "cosine_sim": 0.9143420457839966,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 382,
+      "cosine_sim": 0.918499231338501,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 383,
+      "cosine_sim": 0.9127640128135681,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 384,
+      "cosine_sim": 0.9168656468391418,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 385,
+      "cosine_sim": 0.9151808619499207,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 386,
+      "cosine_sim": 0.9182956218719482,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 387,
+      "cosine_sim": 0.9141535758972168,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 388,
+      "cosine_sim": 0.9071780443191528,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 389,
+      "cosine_sim": 0.906997799873352,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 390,
+      "cosine_sim": 0.9116278886795044,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 391,
+      "cosine_sim": 0.9047400951385498,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 392,
+      "cosine_sim": 0.9041892886161804,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 393,
+      "cosine_sim": 0.9181976914405823,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 394,
+      "cosine_sim": 0.9199200868606567,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 395,
+      "cosine_sim": 0.9125018119812012,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 396,
+      "cosine_sim": 0.9256863594055176,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 397,
+      "cosine_sim": 0.9120216965675354,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 398,
+      "cosine_sim": 0.9188342690467834,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 399,
+      "cosine_sim": 0.9156829118728638,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 400,
+      "cosine_sim": 0.92031329870224,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 401,
+      "cosine_sim": 0.935880720615387,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 402,
+      "cosine_sim": 0.9295777678489685,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 403,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 404,
+      "cosine_sim": 0.9576919674873352,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 405,
+      "cosine_sim": 0.9702156782150269,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 406,
+      "cosine_sim": 0.9660524129867554,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 407,
+      "cosine_sim": 0.9513801336288452,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 408,
+      "cosine_sim": 0.9475031495094299,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 409,
+      "cosine_sim": 0.9602629542350769,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 410,
+      "cosine_sim": 0.9508369565010071,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 411,
+      "cosine_sim": 0.9605293869972229,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 412,
+      "cosine_sim": 0.9603993892669678,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 413,
+      "cosine_sim": 0.9586758613586426,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 414,
+      "cosine_sim": 0.9633309841156006,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 415,
+      "cosine_sim": 0.960063099861145,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 416,
+      "cosine_sim": 0.9528750777244568,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 417,
+      "cosine_sim": 0.9447752833366394,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 418,
+      "cosine_sim": 0.9501121044158936,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 419,
+      "cosine_sim": 0.9548482298851013,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 420,
+      "cosine_sim": 0.9635182023048401,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 421,
+      "cosine_sim": 0.9609649777412415,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 422,
+      "cosine_sim": 0.9664395451545715,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 423,
+      "cosine_sim": 0.9655886888504028,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 424,
+      "cosine_sim": 0.9677872061729431,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 425,
+      "cosine_sim": 0.956338107585907,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 426,
+      "cosine_sim": 0.9611188769340515,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 427,
+      "cosine_sim": 0.9589676856994629,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 428,
+      "cosine_sim": 0.9509177803993225,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 429,
+      "cosine_sim": 0.9661198854446411,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 430,
+      "cosine_sim": 0.9638457298278809,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 431,
+      "cosine_sim": 0.9610754251480103,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 432,
+      "cosine_sim": 0.9658092260360718,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 433,
+      "cosine_sim": 0.9566628932952881,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 434,
+      "cosine_sim": 1.0,
+      "is_anchor": true,
+      "delta_magnitude": 0.0,
+      "encoder_called": true
+    },
+    {
+      "frame": 435,
+      "cosine_sim": 0.985771656036377,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 436,
+      "cosine_sim": 0.9768775701522827,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 437,
+      "cosine_sim": 0.9719884991645813,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 438,
+      "cosine_sim": 0.959339439868927,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 439,
+      "cosine_sim": 0.9593469500541687,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 440,
+      "cosine_sim": 0.9724153280258179,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 441,
+      "cosine_sim": 0.9690706729888916,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 442,
+      "cosine_sim": 0.9637727737426758,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 443,
+      "cosine_sim": 0.9654240608215332,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 444,
+      "cosine_sim": 0.9687361121177673,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 445,
+      "cosine_sim": 0.9580060839653015,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 446,
+      "cosine_sim": 0.9551054239273071,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 447,
+      "cosine_sim": 0.9373436570167542,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 448,
+      "cosine_sim": 0.9334033727645874,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    },
+    {
+      "frame": 449,
+      "cosine_sim": 0.9297459125518799,
+      "is_anchor": false,
+      "delta_magnitude": 0.0,
+      "encoder_called": false
+    }
+  ]
+}
