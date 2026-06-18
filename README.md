@@ -172,11 +172,11 @@ Every other frame was processed using only YOLOv8 tracking + pure math reconstru
 If you use ADVE in your research:
 
 ```bibtex
-@misc{hariharan2025adve,
+@misc{asmitha2026adve,
   title  = {ADVE: Anchor-Delta Video Embedding for Efficient Semantic Scene Understanding},
-  author = {Hariharan, M},
-  year   = {2025},
-  url    = {https://github.com/Hariharan-1828/ADVE}
+  author = {Asmitha},
+  year   = {2026},
+  url    = {https://github.com/asmitha2025/ADVE}
 }
 ```
 
