@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import gradio as gr
 import yt_dlp
-import anthropic
+import groq
 
 # Ensure adve_v2 is in the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -227,7 +227,7 @@ def search_and_retrieve(query: str):
 
 
 def rag_answer_question(question: str):
-    """RAG Answer Engine: Send top matching frames as context to Claude to answer queries."""
+    """RAG Answer Engine: Send top matching frames as context to Groq Llama 3.2 Vision to answer queries."""
     global active_search_results, active_video_path
     if not active_video_path:
         return "Please index a video first."
@@ -236,17 +236,19 @@ def rag_answer_question(question: str):
     if not question.strip():
         return "Please enter a question."
         
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    # Load Groq API Key
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         return (
-            "⚠️ ANTHROPIC_API_KEY environment variable is missing.\n\n"
-            "Please set your key to enable Claude Video RAG:\n"
-            "Windows: `$env:ANTHROPIC_API_KEY='your-key'`\n"
-            "Linux/macOS: `export ANTHROPIC_API_KEY='your-key'`"
+            "⚠️ GROQ_API_KEY environment variable is missing.\n\n"
+            "Please set your key to enable Groq Video RAG:\n"
+            "Windows: `$env:GROQ_API_KEY='your-key'`\n"
+            "Linux/macOS: `export GROQ_API_KEY='your-key'`"
         )
         
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        from groq import Groq
+        client = Groq(api_key=api_key)
         
         # Build prompt content with base64 visual frames
         prompt_content = [
@@ -263,11 +265,11 @@ def rag_answer_question(question: str):
             cap.release()
             
             if ret:
-                # Resize frame to a max width of 800px to optimize API tokens
+                # Resize frame to a max width of 600px to optimize API payload
                 h, w = frame.shape[:2]
-                if w > 800:
-                    scale = 800 / w
-                    frame = cv2.resize(frame, (800, int(h * scale)))
+                if w > 600:
+                    scale = 600 / w
+                    frame = cv2.resize(frame, (600, int(h * scale)))
                     
                 _, buf = cv2.imencode(".jpg", frame)
                 b64 = base64.b64encode(buf).decode()
@@ -277,11 +279,9 @@ def rag_answer_question(question: str):
                     "text": f"Retrieved Frame {i+1} at timestamp {r.timestamp:.1f}s (match score: {r.similarity * 100:.1f}%):"
                 })
                 prompt_content.append({
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/jpeg",
-                        "data": b64
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{b64}"
                     }
                 })
                 
@@ -290,15 +290,16 @@ def rag_answer_question(question: str):
             "text": "Analyze the visual details in the frames and answer the question concisely."
         })
         
-        print("[Demo RAG] Sending multi-modal query to Claude...")
-        response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+        print("[Demo RAG] Sending multi-modal query to Groq Llama 3.2 Vision...")
+        response = client.chat.completions.create(
+            model="llama-3.2-11b-vision-preview",
+            messages=[{"role": "user", "content": prompt_content}],
             max_tokens=400,
-            messages=[{"role": "user", "content": prompt_content}]
+            temperature=0.2
         )
-        return response.content[0].text
+        return response.choices[0].message.content
     except Exception as e:
-        return f"Error querying Anthropic Claude: {e}"
+        return f"Error querying Groq Llama 3.2 Vision: {e}"
 
 
 # ── Gradio Theme & Custom CSS ───────────────────────────────────────────────────
@@ -356,11 +357,11 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
         with gr.Column(scale=2):
             gr.Markdown("### 🤖 Video RAG Question Engine")
             rag_query = gr.Textbox(label="Ask a question about the video", placeholder="e.g. 'What is the speaker drawing on the board?'")
-            rag_btn = gr.Button("Ask Claude", variant="primary")
+            rag_btn = gr.Button("Ask Groq (Llama 3.2)", variant="primary")
             
         with gr.Column(scale=3):
-            gr.Markdown("### 📝 Claude's Visual Analysis Answer")
-            rag_answer = gr.Textbox(label="RAG Context Answer", interactive=False, lines=8)
+            gr.Markdown("### 📝 Groq's Visual Analysis Answer")
+            rag_answer = gr.Textbox(label="Groq Visual RAG Answer", interactive=False, lines=8)
 
     # ── Button Bindings ──────────────────────────────────────────────────────────
     yt_index_btn.click(
