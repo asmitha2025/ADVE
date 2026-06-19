@@ -33,7 +33,8 @@ class ADVEPipeline:
 
         self.anchor_proc     = AnchorProcessor(config, self.yolo)
         yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
-        self.delta_tracker   = DeltaTracker(self.yolo, device=yolo_device)
+        yolo_imgsz = getattr(config, "YOLO_IMGSZ", 320)
+        self.delta_tracker   = DeltaTracker(self.yolo, device=yolo_device, imgsz=yolo_imgsz)
         self.reconstructor   = EmbeddingReconstructor(config.MLP_MODEL_PATH)
         self.validator       = Validator(config)
 

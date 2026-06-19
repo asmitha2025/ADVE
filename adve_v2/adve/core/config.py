@@ -16,9 +16,10 @@ class Config:
     SUCCESS_THRESHOLD: float = 0.85       # min cosine similarity to pass
 
     # --- Hardware ---
-    DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
-    CLIP_DEVICE: str = "cpu"  # Keep CLIP on CPU to prevent VRAM Out-of-Memory (OOM) crashes
-    YOLO_DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
+    DEVICE: str = "cpu"  # Force CPU for absolute stability inside Gradio worker threads
+    CLIP_DEVICE: str = "cpu"
+    YOLO_DEVICE: str = "cpu"
+    YOLO_IMGSZ: int = 320  # Optimized input resolution for fast CPU inference (0.28s per frame)
 
     # --- I/O ---
     OUTPUT_DIR: str = "outputs"
