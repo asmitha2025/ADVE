@@ -26,23 +26,44 @@ os.makedirs(index_dir, exist_ok=True)
 search_index = ADVESearchIndex(index_dir)
 
 
+def is_ffmpeg_available() -> bool:
+    import subprocess
+    try:
+        subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        return True
+    except (subprocess.SubprocessError, FileNotFoundError):
+        return False
+
+
 def download_youtube(url: str, progress=gr.Progress()) -> str:
-    """Download the first 5 minutes of a YouTube video using yt-dlp."""
-    progress(0.1, desc="Checking YouTube URL...")
+    """Download the first 5 minutes of a YouTube video, or fall back to low-res full download if ffmpeg is missing."""
+    progress(0.1, desc="Checking YouTube URL and system capabilities...")
     os.makedirs("demo_videos", exist_ok=True)
     
-    # We limit duration to first 5 minutes (300 seconds) to ensure quick demo download & processing
-    opts = {
-        "format": "mp4/best",
-        "outtmpl": "demo_videos/%(id)s.%(ext)s",
-        "download_ranges": lambda info, ydl: [{"start_time": 0, "end_time": 300}],
-        "force_keyframes_at_cuts": True,
-        "quiet": True,
-        "no_warnings": True,
-    }
+    ffmpeg_ok = is_ffmpeg_available()
+    
+    if ffmpeg_ok:
+        # We limit duration to first 5 minutes (300 seconds) to ensure quick demo download & processing
+        opts = {
+            "format": "mp4/best",
+            "outtmpl": "demo_videos/%(id)s.%(ext)s",
+            "download_ranges": lambda info, ydl: [{"start_time": 0, "end_time": 300}],
+            "force_keyframes_at_cuts": True,
+            "quiet": True,
+            "no_warnings": True,
+        }
+        progress(0.3, desc="Downloading video from YouTube (partial download first 5m)...")
+    else:
+        # Without ffmpeg, download full video at lowest quality/resolution (very small size) to save time/bandwidth
+        opts = {
+            "format": "worst[ext=mp4]/mp4",
+            "outtmpl": "demo_videos/%(id)s.%(ext)s",
+            "quiet": True,
+            "no_warnings": True,
+        }
+        progress(0.3, desc="ffmpeg not found. Downloading full video in low-res format to save bandwidth...")
     
     try:
-        progress(0.3, desc="Downloading video from YouTube (limited to first 5m)...")
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=True)
             video_id = info["id"]
