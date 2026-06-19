@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADVE — Anchor-Delta Video Embedding Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0d11;
+            --panel-bg: rgba(20, 26, 36, 0.5);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --pink-accent: #ec4899;
+            --pink-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            --green-accent: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 24px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .logo-section p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .hero {
+            padding: 80px 8% 60px 8%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(236, 72, 153, 0.03) 70%, transparent 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .hero h2 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 800px;
+            background: linear-gradient(135deg, #ffffff 50%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero h2 span {
+            background: linear-gradient(to right, #60a5fa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p.tagline {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 14px 28px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--panel-border);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .features-grid {
+            padding: 40px 8%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.25);
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            padding: 60px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .calc-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            backdrop-filter: blur(12px);
+        }
+
+        @media (max-width: 900px) {
+            .calc-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calc-left {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .calc-title {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .calc-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .calc-group label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .calc-group label span {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .slider-control {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .slider-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .slider-control::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .calc-right {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .cost-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cost-row:last-child {
+            border-bottom: none;
+        }
+
+        .cost-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .cost-val {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .cost-val.original {
+            color: #ef4444;
+            text-decoration: line-through;
+        }
+
+        .cost-val.adve {
+            color: var(--green-accent);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .savings-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .savings-box .big-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--green-accent);
+        }
+
+        /* Signup Section */
+        .signup-section {
+            padding: 60px 8% 100px 8%;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .signup-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .input-control {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-control:focus {
+            border-color: var(--accent-color);
+        }
+
+        .key-display {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px dashed var(--green-accent);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 15px;
+            color: var(--green-accent);
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <h1>ADVE</h1>
+            <p>Anchor-Delta Video Embedding Engine</p>
+        </div>
+        <a href="/dashboard" class="btn btn-secondary">Go to Dashboard</a>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Stop Wasting <span>90% of your VRAM</span> & Compute on Video AI</h2>
+            <p class="tagline">ADVE processes only visual change vectors (spatial graph deltas) instead of repeatedly encoding identical frames, enabling fast, low-cost semantic indexing on any hardware.</p>
+            <div class="cta-buttons">
+                <a href="#signup" class="btn">Register as First User</a>
+                <a href="/dashboard" class="btn btn-secondary">Launch App Dashboard</a>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h3 class="feature-title">Anchor-Delta Optimization</h3>
+                <p class="feature-desc">Analyzes YOLO tracking coordinates to build a spatial graph delta. Skip CLIP neural network runs entirely on unchanged frames.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🧠</span>
+                <h3 class="feature-title">Learned MLP Reconstruction</h3>
+                <p class="feature-desc">A trained multi-layer perceptron reconstructs embeddings in delta frames, raising cosine similarity to 0.97+.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔍</span>
+                <h3 class="feature-title">Vector Search + Speech</h3>
+                <p class="feature-desc">Combines FAISS vector index database search with Whisper audio transcript text searches for true scene understanding.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎥</span>
+                <h3 class="feature-title">RTSP Live Camera Feeds</h3>
+                <p class="feature-desc">Supports multi-threaded RTSP camera ingest pipelines, buffering frames and indexing live streams on the edge.</p>
+            </div>
+        </section>
+
+        <!-- ROI Calculator -->
+        <section class="calculator-section">
+            <div class="calc-container">
+                <div class="calc-left">
+                    <h3 class="calc-title">💰 ROI Calculator</h3>
+                    <p style="font-size: 14px; color: var(--text-muted);">See how much you save on API costs and server workloads by switching to ADVE's delta processing.</p>
+                    
+                    <div class="calc-group">
+                        <label>Number of Camera Feeds <span id="val-cameras">50</span></label>
+                        <input type="range" id="input-cameras" class="slider-control" min="1" max="500" value="50" oninput="updateROI()">
+                    </div>
+
+                    <div class="calc-group">
+                        <label>Inference Cost (per 10K frame runs) <span id="val-cost">₹12.00</span></label>
+                        <input type="range" id="input-cost" class="slider-control" min="1" max="100" value="12" oninput="updateROI()">
+                    </div>
+
+                    <div class="calc-group">
+                        <label>Camera Ingest Rate <span id="val-fps">15 FPS</span></label>
+                        <input type="range" id="input-fps" class="slider-control" min="5" max="30" value="15" step="5" oninput="updateROI()">
+                    </div>
+                </div>
+
+                <div class="calc-right">
+                    <div class="cost-comparison">
+                        <div class="cost-row">
+                            <span class="cost-label">Total Daily Frames</span>
+                            <span class="cost-val" id="res-frames">6.48 Cr</span>
+                        </div>
+                        <div class="cost-row">
+                            <span class="cost-label">Standard Daily Cost</span>
+                            <span class="cost-val original" id="res-standard">₹77,760</span>
+                        </div>
+                        <div class="cost-row">
+                            <span class="cost-label">ADVE Daily Cost (90% savings)</span>
+                            <span class="cost-val adve" id="res-adve">₹7,776</span>
+                        </div>
+                    </div>
+
+                    <div class="savings-box">
+                        <span class="cost-label" style="color: var(--green-accent); font-weight: 600;">Monthly Bill Savings</span>
+                        <span class="big-val" id="res-savings">₹21.00 Lakh</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Registration (First User) -->
+        <section class="signup-section" id="signup">
+            <div class="signup-card">
+                <h3 class="calc-title">🚀 Register as First User</h3>
+                <p style="font-size: 14px; color: var(--text-muted);">Sign up to generate your workspace API credentials and start indexing feeds.</p>
+                
+                <form id="signup-form" onsubmit="registerUser(event)">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label>Your Full Name</label>
+                        <input type="text" id="user-name" class="input-control" placeholder="Jane Doe" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label>Email Address</label>
+                        <input type="email" id="user-email" class="input-control" placeholder="jane@company.com" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Create Account & Get API Key</button>
+                </form>
+
+                <div class="key-display" id="key-display-box">
+                    <span style="font-size: 13px; font-weight: 600;">YOUR ADVE LIVE API KEY</span>
+                    <span id="api-key-val" style="font-weight: 700; font-size: 18px; margin: 8px 0; user-select: all;">adve_live_xxxxxx</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">Copy this key. You can now access all REST endpoints!</span>
+                    <a href="/dashboard" class="btn" style="margin-top: 14px; box-shadow: none;">Launch Dashboard Workspace</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function updateROI() {
+            const cameras = parseInt(document.getElementById('input-cameras').value);
+            const cost = parseFloat(document.getElementById('input-cost').value);
+            const fps = parseInt(document.getElementById('input-fps').value);
+
+            document.getElementById('val-cameras').innerText = cameras.toLocaleString();
+            document.getElementById('val-cost').innerText = `₹${cost.toFixed(2)}`;
+            document.getElementById('val-fps').innerText = `${fps} FPS`;
+
+            // Calculations
+            const dailyFrames = cameras * fps * 60 * 60 * 24;
+            const standardCost = (dailyFrames / 10000) * (cost / 100);
+            const adveCost = standardCost * 0.10; // 90% savings
+            const monthlySavings = (standardCost - adveCost) * 30;
+
+            // Formatting
+            document.getElementById('res-frames').innerText = formatFrames(dailyFrames);
+            document.getElementById('res-standard').innerText = formatCurrency(standardCost);
+            document.getElementById('res-adve').innerText = formatCurrency(adveCost);
+            document.getElementById('res-savings').innerText = formatCurrency(monthlySavings) + " / mo";
+        }
+
+        function formatFrames(val) {
+            if (val >= 10000000) return `${(val / 10000000).toFixed(2)} Cr`;
+            if (val >= 100000) return `${(val / 100000).toFixed(2)} Lakh`;
+            return val.toLocaleString();
+        }
+
+        function formatCurrency(val) {
+            if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lakh`;
+            return `₹${Math.round(val).toLocaleString()}`;
+        }
+
+        async function registerUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+
+            try {
+                const res = await fetch(`${window.location.origin}/v1/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, email: email })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('signup-form').style.display = 'none';
+                    const keyBox = document.getElementById('key-display-box');
+                    keyBox.style.display = 'flex';
+                    document.getElementById('api-key-val').innerText = data.api_key;
+                } else {
+                    const err = await res.json();
+                    alert(`Error: ${err.detail}`);
+                }
+            } catch (err) {
+                alert(`Registration failed: ${err.message}`);
+            }
+        }
+
+        // Initialize ROI view
+        updateROI();
+    </script>
+</body>
+</html>

@@ -65,6 +65,24 @@ class ADVESearchIndex:
                 is_anchor  INTEGER
             )
         """)
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS transcripts (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_path TEXT,
+                timestamp  REAL,
+                text       TEXT
+            )
+        """)
+        self.db.commit()
+
+    def add_transcripts(self, video_path: str, segments: List[Dict]):
+        """Add transcribed speech segments to index."""
+        if not segments:
+            return
+        self.db.executemany(
+            "INSERT INTO transcripts VALUES (NULL, ?, ?, ?)",
+            [(video_path, s["timestamp"], s["text"]) for s in segments]
+        )
         self.db.commit()
 
     def add(
@@ -110,7 +128,7 @@ class ADVESearchIndex:
         self.db.commit()
 
     def search_by_text(self, query: str, k: int = 10) -> List[SearchResult]:
-        """Search using a natural language query via CLIP text encoder."""
+        """Search video content using natural language (visual) and speech (audio)."""
         import torch, clip
         if self._clip_model is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -123,7 +141,43 @@ class ADVESearchIndex:
             text_emb = text_emb / text_emb.norm(dim=-1, keepdim=True)
 
         query_vec = text_emb.cpu().numpy().astype(np.float32).flatten()
-        return self._search(query_vec, k)
+        
+        # 1. Search visual features via FAISS
+        visual_results = self._search(query_vec, k)
+        
+        # 2. Search speech transcripts via SQLite
+        audio_results = []
+        try:
+            cursor = self.db.execute(
+                "SELECT video_path, timestamp, text FROM transcripts WHERE text LIKE ?",
+                (f"%{query}%",)
+            )
+            for row in cursor.fetchall():
+                v_path, ts, text = row
+                
+                # Find matching closest frame index in embeddings
+                frame_row = self.db.execute(
+                    "SELECT frame_idx, camera_id FROM embeddings WHERE video_path = ? ORDER BY ABS(timestamp - ?) LIMIT 1",
+                    (v_path, ts)
+                ).fetchone()
+                
+                frame_idx = frame_row[0] if frame_row else int(ts * 30)
+                camera_id = frame_row[1] if frame_row else "stream"
+                
+                audio_results.append(SearchResult(
+                    video_path = v_path,
+                    camera_id = f"{camera_id} (Speech: \"{text}\")",
+                    timestamp = ts,
+                    frame_idx = frame_idx,
+                    similarity = 0.99,  # High similarity to prioritize keyword speech hits
+                ))
+        except Exception as e:
+            print(f"[ADVESearchIndex] Transcript search error: {e}")
+
+        # Combine results, sort by similarity
+        combined = visual_results + audio_results
+        combined.sort(key=lambda x: -x.similarity)
+        return combined[:k]
 
     def search_by_image(
         self, image: np.ndarray, k: int = 10

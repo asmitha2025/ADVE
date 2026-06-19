@@ -20,3 +20,4 @@ class Config:
 
     # --- I/O ---
     OUTPUT_DIR: str = "outputs"
+    MLP_MODEL_PATH: str = "training/checkpoints/best_model.pt"

@@ -33,7 +33,7 @@ class ADVEPipeline:
 
         self.anchor_proc     = AnchorProcessor(config, self.yolo)
         self.delta_tracker   = DeltaTracker(self.yolo, device=config.DEVICE)
-        self.reconstructor   = EmbeddingReconstructor()
+        self.reconstructor   = EmbeddingReconstructor(config.MLP_MODEL_PATH)
         self.validator       = Validator(config)
 
         # Live state

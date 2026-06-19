@@ -1,4 +1,5 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Response
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
@@ -31,6 +32,26 @@ search_index = ADVESearchIndex("data/main_index")
 camera_mgr   = MultiCameraManager(index_writer=search_index)
 
 
+def init_users_db():
+    import sqlite3
+    # Use the same DB as metadata
+    db = sqlite3.connect("data/main_index/metadata.db")
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT,
+            email      TEXT UNIQUE,
+            api_key    TEXT UNIQUE,
+            created_at REAL
+        )
+    """)
+    db.commit()
+    db.close()
+
+# Initialize DB on load
+init_users_db()
+
+
 # ── Models ────────────────────────────────────────────────────────────────────
 
 class TextSearchRequest(BaseModel):
@@ -49,13 +70,18 @@ class SearchResult(BaseModel):
     frame_idx:  int
     similarity: float
 
+class RegisterRequest(BaseModel):
+    name:  str
+    email: str
+
 
 # ── Background indexing ───────────────────────────────────────────────────────
 
 def index_video_task(video_path: str, video_id: str):
-    """Runs in background after upload."""
+    """Runs in background after upload. Decodes frames, runs ADVE, and transcribes audio."""
     import cv2
     import numpy as np
+    from adve.core.audio_transcriber import AudioTranscriber
 
     config   = Config()
     pipeline = ADVEPipeline(config)
@@ -94,10 +120,49 @@ def index_video_task(video_path: str, video_id: str):
 
     cap.release()
     search_index.save()
-    print(f"Indexed {idx} frames from {video_id}")
+    print(f"Indexed {idx} visual frames from {video_id}")
+
+    # Speech transcription using Whisper
+    try:
+        transcriber = AudioTranscriber()
+        if transcriber.whisper_available:
+            print(f"Extracting and transcribing speech for {video_id}...")
+            speech_segments = transcriber.transcribe(video_path)
+            if speech_segments:
+                search_index.add_transcripts(video_id, speech_segments)
+                print(f"Successfully indexed {len(speech_segments)} speech segments.")
+    except Exception as e:
+        print(f"Audio transcription warning: {e}")
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
+@app.post("/v1/register")
+async def register_user(request: RegisterRequest):
+    """Registers a new user (First User) and returns a unique live API key."""
+    import sqlite3
+    import secrets
+    
+    api_key = f"adve_live_{secrets.token_hex(16)}"
+    db = sqlite3.connect("data/main_index/metadata.db")
+    try:
+        db.execute(
+            "INSERT INTO users VALUES (NULL, ?, ?, ?, ?)",
+            (request.name, request.email, api_key, time.time())
+        )
+        db.commit()
+    except sqlite3.IntegrityError:
+        # Email already exists, return the existing user's key
+        row = db.execute("SELECT api_key FROM users WHERE email=?", (request.email,)).fetchone()
+        if row:
+            api_key = row[0]
+        else:
+            raise HTTPException(status_code=400, detail="Email already registered, registration failed.")
+    finally:
+        db.close()
+        
+    return {"status": "success", "api_key": api_key}
+
 
 @app.post("/v1/index/video")
 async def index_video(
@@ -175,6 +240,57 @@ async def get_stats():
         "index":   search_index.stats(),
         "cameras": camera_mgr.status(),
     }
+
+
+@app.get("/", response_class=HTMLResponse)
+async def get_landing():
+    html_path = os.path.join(os.path.dirname(__file__), "landing.html")
+    if not os.path.exists(html_path):
+        return "<h3>ADVE Product Landing Page (landing.html) not found!</h3>"
+    with open(html_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def get_dashboard():
+    html_path = os.path.join(os.path.dirname(__file__), "dashboard.html")
+    if not os.path.exists(html_path):
+        return "<h3>ADVE Dashboard (dashboard.html) not found!</h3>"
+    with open(html_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@app.get("/v1/frame")
+async def get_frame(video_id: str, frame_idx: int):
+    import cv2
+    
+    video_path = f"data/uploads/{video_id}"
+    if not os.path.exists(video_path):
+        if "MOT17" in video_id:
+            video_path = f"Input video/{video_id}"
+        elif video_id == "test_video.mp4":
+            video_path = "test_video.mp4"
+        else:
+            video_path = video_id
+            
+    if not os.path.exists(video_path):
+        basename = os.path.basename(video_id)
+        fallback = f"data/uploads/{basename}"
+        if os.path.exists(fallback):
+            video_path = fallback
+        else:
+            raise HTTPException(status_code=404, detail=f"Video file not found: {video_id}")
+            
+    cap = cv2.VideoCapture(video_path)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+    ret, frame = cap.read()
+    cap.release()
+    
+    if not ret:
+        raise HTTPException(status_code=400, detail=f"Could not read frame {frame_idx}")
+        
+    _, buffer = cv2.imencode(".jpg", frame)
+    return Response(content=buffer.tobytes(), media_type="image/jpeg")
 
 
 @app.get("/v1/health")

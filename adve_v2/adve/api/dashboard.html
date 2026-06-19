@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADVE — Video Intelligence Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0f14;
+            --panel-bg: rgba(22, 28, 38, 0.6);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --pink-accent: #ec4899;
+            --green-accent: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 24px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .logo-section p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--green-accent);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--green-accent);
+            box-shadow: 0 0 8px var(--green-accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 5%;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-gradient);
+        }
+
+        .stat-card.pink::after {
+            background: var(--pink-accent);
+        }
+
+        .stat-card.green::after {
+            background: var(--green-accent);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Two Column Layout */
+        .dashboard-columns {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Upload Panel */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.03);
+        }
+
+        .upload-icon {
+            font-size: 36px;
+            color: var(--accent-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-gradient);
+            transition: width 0.3s ease;
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .input-control {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            width: 100%;
+        }
+
+        .input-control:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: filter 0.3s ease;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--panel-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Search Section */
+        .search-options {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .thumbnail-container {
+            width: 100%;
+            height: 160px;
+            background: #111827;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .similarity-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(13, 15, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .result-info {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sim-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .sim-fill {
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <h1>ADVE PLATFORM</h1>
+            <p>Anchor-Delta Video Embedding Engine v2.0</p>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span>SYSTEM ACTIVE</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Statistics -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Embeddings</span>
+                <span class="stat-value" id="stats-total">0</span>
+            </div>
+            <div class="stat-card pink">
+                <span class="stat-label">Anchor Frames (CLIP calls)</span>
+                <span class="stat-value" id="stats-anchors">0</span>
+            </div>
+            <div class="stat-card green">
+                <span class="stat-label">Delta Frames (CLIP Saved)</span>
+                <span class="stat-value" id="stats-deltas">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Computational Savings</span>
+                <span class="stat-value" id="stats-savings">0.0%</span>
+            </div>
+        </section>
+
+        <section class="dashboard-columns">
+            <!-- Left Panel: Controls -->
+            <div style="display: flex; flex-direction: column; gap: 30px;">
+                <!-- Upload Panel -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📤</span> Index Video File
+                    </div>
+                    <div class="upload-area" id="upload-zone" onclick="document.getElementById('video-input').click()">
+                        <span class="upload-icon">📁</span>
+                        <p style="font-weight: 500;">Select or drag video here</p>
+                        <p style="font-size: 12px; color: var(--text-muted);">Supports MP4, WEBM, AVI</p>
+                        <input type="file" id="video-input" style="display: none;" accept="video/*" onchange="uploadVideo(this.files[0])">
+                    </div>
+                    <div class="progress-bar-container" id="upload-progress-container">
+                        <div class="progress-bar" id="upload-progress"></div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); text-align: center;" id="upload-status"></p>
+                </div>
+
+                <!-- RTSP stream -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📹</span> Connect Live Camera Stream
+                    </div>
+                    <form onsubmit="connectStream(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                        <div class="form-group">
+                            <label>Camera Identifier</label>
+                            <input type="text" id="camera-id" class="input-control" placeholder="camera_lobby_01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>RTSP Connection URL</label>
+                            <input type="text" id="rtsp-url" class="input-control" placeholder="rtsp://192.168.1.100:554/stream" required>
+                        </div>
+                        <button type="submit" class="btn">Connect Stream</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Panel: Search & Results -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🔍</span> Semantic Scene Search
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Text query input -->
+                    <div class="form-group">
+                        <label>Natural Language Description</label>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" id="search-query" class="input-control" placeholder="Describe the scene e.g., 'a group of people walking under trees'..." onkeydown="if(event.key === 'Enter') searchText()">
+                            <button class="btn" onclick="searchText()">Search</button>
+                        </div>
+                    </div>
+
+                    <!-- Image Query option -->
+                    <div style="border-top: 1px solid var(--panel-border); padding-top: 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="font-size: 13px; color: var(--text-muted);">Or query by image similarity:</label>
+                            <input type="file" id="search-image-file" style="display: none;" accept="image/*" onchange="searchImage(this.files[0])">
+                            <button class="btn btn-secondary" onclick="document.getElementById('search-image-file').click()">Upload Reference Image</button>
+                        </div>
+                        <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
+                            <label>Top Results (K):</label>
+                            <input type="number" id="search-k" class="input-control" value="8" min="1" max="50" style="width: 70px; padding: 6px 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div style="border-top: 1px solid var(--panel-border); padding-top: 20px;">
+                    <h3 style="font-size: 15px; font-weight: 500; margin-bottom: 15px; color: var(--text-muted);" id="results-count-title">Query Results</h3>
+                    <div class="results-grid" id="results-container">
+                        <div class="empty-state">
+                            <span class="empty-icon">📂</span>
+                            <p>No search results. Upload a video and index it to search.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Fetch stats on load & periodically
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API_BASE}/v1/stats`);
+                const data = await res.json();
+                
+                const total = data.index.total_embeddings;
+                const anchors = data.index.anchor_frames;
+                const deltas = data.index.delta_frames;
+                const savings = total > 0 ? ((deltas / total) * 100).toFixed(1) : "0.0";
+
+                document.getElementById('stats-total').innerText = total.toLocaleString();
+                document.getElementById('stats-anchors').innerText = anchors.toLocaleString();
+                document.getElementById('stats-deltas').innerText = deltas.toLocaleString();
+                document.getElementById('stats-savings').innerText = `${savings}%`;
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+            }
+        }
+
+        // Upload Video File
+        function uploadVideo(file) {
+            if (!file) return;
+
+            const uploadProgressContainer = document.getElementById('upload-progress-container');
+            const uploadProgress = document.getElementById('upload-progress');
+            const uploadStatus = document.getElementById('upload-status');
+
+            uploadProgressContainer.style.display = 'block';
+            uploadStatus.innerText = "Uploading video file...";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", `${API_BASE}/v1/index/video`, true);
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const pct = (e.loaded / e.total) * 100;
+                    uploadProgress.style.width = `${pct}%`;
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const res = JSON.parse(xhr.responseText);
+                    uploadStatus.innerText = "Upload completed! Video is being indexed in the background.";
+                    setTimeout(() => {
+                        uploadProgressContainer.style.display = 'none';
+                        uploadProgress.style.width = '0%';
+                    }, 5000);
+                } else {
+                    uploadStatus.innerText = "Upload failed. Please try again.";
+                }
+            };
+
+            xhr.send(formData);
+        }
+
+        // Connect RTSP Live feed
+        async function connectStream(e) {
+            e.preventDefault();
+            const cameraId = document.getElementById('camera-id').value;
+            const rtspUrl = document.getElementById('rtsp-url').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/v1/index/stream`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ camera_id: cameraId, rtsp_url: rtspUrl })
+                });
+
+                if (res.ok) {
+                    alert(`Connected live camera stream: ${cameraId}`);
+                    document.getElementById('camera-id').value = '';
+                    document.getElementById('rtsp-url').value = '';
+                } else {
+                    const err = await res.json();
+                    alert(`Failed: ${err.detail}`);
+                }
+            } catch (err) {
+                alert(`Error connecting stream: ${err.message}`);
+            }
+        }
+
+        // Display results
+        function displayResults(results) {
+            const container = document.getElementById('results-container');
+            const title = document.getElementById('results-count-title');
+            container.innerHTML = '';
+
+            title.innerText = `Query Results (${results.length} found)`;
+
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon">🔍</span>
+                        <p>No matches found matching the description.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            results.forEach(r => {
+                const pct = (r.similarity * 100).toFixed(0);
+                const timeStr = formatTimestamp(r.timestamp);
+                
+                // Check if speech match
+                const isSpeech = r.camera_id && r.camera_id.includes('Speech:');
+                const speechText = isSpeech ? r.camera_id.split('Speech:')[1].replace(/[")]/g, '') : '';
+                
+                // Construct frame url
+                const frameUrl = `${API_BASE}/v1/frame?video_id=${encodeURIComponent(r.video_path)}&frame_idx=${r.frame_idx}`;
+
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="thumbnail-container">
+                        <img src="${frameUrl}" alt="Frame matching result" onerror="this.src='https://placehold.co/400x225/1f2937/9ca3af?text=Frame+Image'">
+                        <div class="similarity-tag" style="${isSpeech ? 'color: var(--pink-accent); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1);' : ''}">${isSpeech ? 'Speech Match' : pct + '% Match'}</div>
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title" title="${r.video_path}">${r.video_path}</div>
+                        <div class="result-meta">
+                            <span>⏱️ ${timeStr}</span>
+                            <span>🎞️ Frame ${r.frame_idx}</span>
+                        </div>
+                        ${isSpeech ? `<div style="font-size: 13px; color: var(--pink-accent); font-weight: 500; font-style: italic; margin-top: 6px; line-height: 1.4;">"${speechText}"</div>` : ''}
+                        <div class="sim-bar">
+                            <div class="sim-fill" style="width: ${pct}%; ${isSpeech ? 'background: var(--pink-accent);' : ''}"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Search by Text Description
+        async function searchText() {
+            const query = document.getElementById('search-query').value;
+            const k = parseInt(document.getElementById('search-k').value) || 8;
+            if (!query.trim()) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/v1/search/text`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, k: k })
+                });
+                const data = await res.json();
+                displayResults(data);
+            } catch (err) {
+                console.error("Search error:", err);
+            }
+        }
+
+        // Search by Reference Image
+        async function searchImage(file) {
+            if (!file) return;
+            const k = parseInt(document.getElementById('search-k').value) || 8;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch(`${API_BASE}/v1/search/image?k=${k}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                displayResults(data);
+            } catch (err) {
+                console.error("Image search error:", err);
+            }
+        }
+
+        function formatTimestamp(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            const ms = Math.floor((sec % 1) * 100);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+        }
+
+        // Auto-refresh stats
+        fetchStats();
+        setInterval(fetchStats, 5000);
+    </script>
+</body>
+</html>

@@ -1,8 +1,9 @@
 import json
 import torch
 import numpy as np
+import os
 from torch.utils.data import Dataset, DataLoader
-from model import ReconstructionMLP, ReconstructionLoss
+from training.model import ReconstructionMLP, ReconstructionLoss
 
 
 class ReconstructionDataset(Dataset):
@@ -23,7 +24,7 @@ class ReconstructionDataset(Dataset):
         }
 
 
-def train(json_path: str, epochs: int = 50, device: str = "cuda" if torch.cuda.is_available() else "cpu"):
+def train(json_path: str, epochs: int = 50, device: str = "cuda" if torch.cuda.is_available() else "cpu", checkpoint_path: str = "training/checkpoints/best_model.pt"):
     dataset    = ReconstructionDataset(json_path)
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True, num_workers=0)
 
@@ -65,7 +66,8 @@ def train(json_path: str, epochs: int = 50, device: str = "cuda" if torch.cuda.i
 
         if avg_loss < best_loss:
             best_loss = avg_loss
-            torch.save(model.state_dict(), "training/checkpoints/best_model.pt")
+            os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+            torch.save(model.state_dict(), checkpoint_path)
             print(f"  → Saved best model (sim={avg_sim:.4f})")
 
     print(f"\nTraining complete. Best cosine sim: {1 - best_loss:.4f}")
@@ -79,6 +81,5 @@ if __name__ == "__main__":
     p.add_argument("--epochs", type=int, default=50)
     args = p.parse_args()
 
-    import os
     os.makedirs("training/checkpoints", exist_ok=True)
     train(args.data, args.epochs)
