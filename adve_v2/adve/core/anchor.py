@@ -19,7 +19,8 @@ class AnchorProcessor:
 
     def __init__(self, config: Config, yolo: YOLO):
         self.config = config
-        self.device = config.DEVICE
+        self.device = getattr(config, "CLIP_DEVICE", config.DEVICE)
+        self.yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
         self.yolo   = yolo  # Shared YOLO instance (preserves ByteTrack ID state)
 
         self.clip_model, self.clip_preprocess = clip.load(
@@ -44,7 +45,7 @@ class AnchorProcessor:
         """
         frame_embedding = self._embed(frame)
 
-        results = self.yolo.track(frame, persist=True, verbose=False, device=self.device)[0]
+        results = self.yolo.track(frame, persist=True, verbose=False, device=self.yolo_device)[0]
         graph   = SpatialGraph()
 
         if results.boxes is not None and len(results.boxes):

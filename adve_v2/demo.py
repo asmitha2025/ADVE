@@ -89,8 +89,7 @@ def index_video(video_path: str, progress=gr.Progress()) -> str:
 
     progress(0.0, desc="Initializing ADVE pipeline...")
     config = Config()
-    # CPU is highly robust for the demo, avoiding CUDA DLL paging crashes
-    config.DEVICE = "cpu"
+    # CLIP runs on CPU (for memory stability) while YOLO runs on GPU (for speed) if CUDA is available
     pipeline = ADVEPipeline(config)
     
     cap = cv2.VideoCapture(video_path)

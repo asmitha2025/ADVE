@@ -32,7 +32,8 @@ class ADVEPipeline:
         self.yolo = YOLO(config.YOLO_MODEL)
 
         self.anchor_proc     = AnchorProcessor(config, self.yolo)
-        self.delta_tracker   = DeltaTracker(self.yolo, device=config.DEVICE)
+        yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
+        self.delta_tracker   = DeltaTracker(self.yolo, device=yolo_device)
         self.reconstructor   = EmbeddingReconstructor(config.MLP_MODEL_PATH)
         self.validator       = Validator(config)
 
@@ -68,9 +69,20 @@ class ADVEPipeline:
 
     def _estimate_homography(self, img1: np.ndarray, img2: np.ndarray) -> Optional[np.ndarray]:
         try:
-            gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-            gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-            orb = cv2.ORB_create(maxFeatures=500)
+            # Resize images to a max dimension of 480px to speed up ORB computation on CPU
+            h, w = img1.shape[:2]
+            scale = 480.0 / max(h, w)
+            if scale < 1.0:
+                img1_small = cv2.resize(img1, (0, 0), fx=scale, fy=scale)
+                img2_small = cv2.resize(img2, (0, 0), fx=scale, fy=scale)
+            else:
+                img1_small = img1
+                img2_small = img2
+                scale = 1.0
+
+            gray1 = cv2.cvtColor(img1_small, cv2.COLOR_BGR2GRAY)
+            gray2 = cv2.cvtColor(img2_small, cv2.COLOR_BGR2GRAY)
+            orb = cv2.ORB_create(nfeatures=300)
             kp1, des1 = orb.detectAndCompute(gray1, None)
             kp2, des2 = orb.detectAndCompute(gray2, None)
             if des1 is None or des2 is None or len(kp1) < 10 or len(kp2) < 10:
@@ -81,6 +93,12 @@ class ADVEPipeline:
                 return None
             src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
             dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+            
+            # Scale coordinates back to original size before estimating homography
+            if scale < 1.0:
+                src_pts = src_pts / scale
+                dst_pts = dst_pts / scale
+                
             H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
             return H
         except Exception:

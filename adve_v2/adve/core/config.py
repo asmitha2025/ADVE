@@ -17,6 +17,8 @@ class Config:
 
     # --- Hardware ---
     DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
+    CLIP_DEVICE: str = "cpu"  # Keep CLIP on CPU to prevent VRAM Out-of-Memory (OOM) crashes
+    YOLO_DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
 
     # --- I/O ---
     OUTPUT_DIR: str = "outputs"
