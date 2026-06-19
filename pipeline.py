@@ -90,6 +90,81 @@ class ADVEPipeline:
     # Main entry point
     # ------------------------------------------------------------------
 
+    def process_frame(self, frame: np.ndarray, frame_idx: int, no_validation: bool = True) -> dict:
+        is_anchor      = False
+        encoder_called = False
+        delta_magnitude = 0.0
+        appearance_delta = 0.0
+        current_graph  = None
+        delta          = {"total_magnitude": 0.0, "new_objects": [], "lost_objects": []}
+
+        # --- Appearance delta ---
+        if self.prev_frame is not None:
+            appearance_delta = self._appearance_delta(self.prev_frame, frame)
+
+        # --- Decide frame type ---
+        if self.anchor_graph is None or self.force_refresh:
+            refresh = True
+            self.force_refresh = False
+        else:
+            homography = self._estimate_homography(self.anchor_frame, frame)
+            current_graph, delta = self.delta_tracker.track(
+                frame, self.anchor_graph, homography=homography
+            )
+            delta_magnitude = delta["total_magnitude"]
+            refresh = self._needs_anchor(delta, appearance_delta)
+
+        # --- Process ---
+        if refresh:
+            # ── ANCHOR FRAME ──────────────────────────────────────
+            self.anchor_frame = frame.copy()
+            self.anchor_graph, self.anchor_embedding = self.anchor_proc.process(frame)
+            self.frames_since_anchor = 0
+            is_anchor      = True
+            encoder_called = True
+
+            reconstructed     = self.anchor_embedding
+            ground_truth      = self.anchor_embedding    # trivially 1.0
+
+        else:
+            # ── DELTA FRAME ───────────────────────────────────────
+            reconstructed = self.reconstructor.reconstruct(
+                self.anchor_graph,
+                current_graph,
+                delta,
+                self.anchor_embedding,
+            )
+
+            # Ground truth: full CLIP (only for validation — normally skipped)
+            ground_truth = None if no_validation else self.anchor_proc.embed_frame(frame)
+            self.frames_since_anchor += 1
+
+            # Check if current frame was empty, schedule refresh if anchor was not empty
+            if len(current_graph.objects) == 0 and len(self.anchor_graph.objects) > 0:
+                self.force_refresh = True
+
+        self.prev_frame = frame.copy()
+
+        # --- Validate ---
+        sim = self.validator.log(
+            frame_idx       = frame_idx,
+            reconstructed   = reconstructed,
+            ground_truth    = ground_truth,
+            is_anchor       = is_anchor,
+            delta_magnitude = delta_magnitude,
+            encoder_called  = encoder_called,
+        )
+
+        return {
+            "embedding":       reconstructed,
+            "is_anchor":       is_anchor,
+            "encoder_called":  encoder_called,
+            "delta_magnitude": delta_magnitude,
+            "appearance_delta": appearance_delta,
+            "cosine_sim":      sim,
+            "frame_idx":       frame_idx,
+        }
+
     def process_video(self, video_path: str, no_validation: bool = False) -> dict:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -111,77 +186,16 @@ class ADVEPipeline:
             if not ret:
                 break
 
-            is_anchor      = False
-            encoder_called = False
-            delta_magnitude = 0.0
-            appearance_delta = 0.0
-            current_graph  = None
-            delta          = {"total_magnitude": 0.0, "new_objects": [], "lost_objects": []}
-
-            # --- Appearance delta ---
-            if self.prev_frame is not None:
-                appearance_delta = self._appearance_delta(self.prev_frame, frame)
-
-            # --- Decide frame type ---
-            if self.anchor_graph is None or self.force_refresh:
-                refresh = True
-                self.force_refresh = False
-            else:
-                homography = self._estimate_homography(self.anchor_frame, frame)
-                current_graph, delta = self.delta_tracker.track(
-                    frame, self.anchor_graph, homography=homography
-                )
-                delta_magnitude = delta["total_magnitude"]
-                refresh = self._needs_anchor(delta, appearance_delta)
-
-            # --- Process ---
-            if refresh:
-                # ── ANCHOR FRAME ──────────────────────────────────────
-                self.anchor_frame = frame.copy()
-                self.anchor_graph, self.anchor_embedding = self.anchor_proc.process(frame)
-                self.frames_since_anchor = 0
-                is_anchor      = True
-                encoder_called = True
-
-                reconstructed     = self.anchor_embedding
-                ground_truth      = self.anchor_embedding    # trivially 1.0
-
-            else:
-                # ── DELTA FRAME ───────────────────────────────────────
-                reconstructed = self.reconstructor.reconstruct(
-                    self.anchor_graph,
-                    current_graph,
-                    delta,
-                    self.anchor_embedding,
-                )
-
-                # Ground truth: full CLIP (only for validation — normally skipped)
-                ground_truth = None if no_validation else self.anchor_proc.embed_frame(frame)
-                self.frames_since_anchor += 1
-
-                # Check if current frame was empty, schedule refresh if anchor was not empty
-                if len(current_graph.objects) == 0 and len(self.anchor_graph.objects) > 0:
-                    self.force_refresh = True
-
-            # --- Validate ---
-            sim = self.validator.log(
-                frame_idx       = frame_idx,
-                reconstructed   = reconstructed,
-                ground_truth    = ground_truth,
-                is_anchor       = is_anchor,
-                delta_magnitude = delta_magnitude,
-                encoder_called  = encoder_called,
-            )
+            res = self.process_frame(frame, frame_idx, no_validation=no_validation)
 
             if frame_idx % 15 == 0:
-                tag = "ANCHOR" if is_anchor else "DELTA "
+                tag = "ANCHOR" if res["is_anchor"] else "DELTA "
                 print(
                     f"  [{frame_idx:>5}] {tag}  "
-                    f"sim={sim:.4f}  ΔG={delta_magnitude:.4f}  "
-                    f"Δapp={appearance_delta:.4f}"
+                    f"sim={res['cosine_sim']:.4f}  ΔG={res['delta_magnitude']:.4f}  "
+                    f"Δapp={res['appearance_delta']:.4f}"
                 )
 
-            self.prev_frame = frame.copy()
             frame_idx += 1
 
         cap.release()
