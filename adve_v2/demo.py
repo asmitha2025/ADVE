@@ -168,41 +168,87 @@ def handle_local_index(file, progress=gr.Progress()) -> str:
 
 
 def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> str:
-    """Extract a 10s video clip around the timestamp."""
+    """Extract a 10s video clip around the timestamp. Falls back to OpenCV if ffmpeg is missing."""
     os.makedirs("clips", exist_ok=True)
     start = max(0.0, timestamp - 2.0)
     output_path = os.path.join("clips", f"clip_{timestamp:.1f}.mp4")
     
-    # Try browser-friendly h264 re-encoding first
-    cmd = [
-        "ffmpeg", "-y",
-        "-ss", str(start),
-        "-i", video_path,
-        "-t", str(duration),
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        "-pix_fmt", "yuv420p",
-        output_path
-    ]
-    try:
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-        return output_path
-    except Exception:
-        # Fallback to copy mode
-        cmd_copy = [
+    # Check if ffmpeg is available
+    if is_ffmpeg_available():
+        # Try browser-friendly h264 re-encoding first
+        cmd = [
             "ffmpeg", "-y",
             "-ss", str(start),
             "-i", video_path,
             "-t", str(duration),
-            "-c", "copy",
+            "-c:v", "libx264",
+            "-c:a", "aac",
+            "-pix_fmt", "yuv420p",
             output_path
         ]
         try:
-            subprocess.run(cmd_copy, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             return output_path
-        except Exception as e:
-            print(f"[FFmpeg] Clip extraction failed: {e}")
-            return ""
+        except Exception:
+            # Fallback to copy mode
+            cmd_copy = [
+                "ffmpeg", "-y",
+                "-ss", str(start),
+                "-i", video_path,
+                "-t", str(duration),
+                "-c", "copy",
+                output_path
+            ]
+            try:
+                subprocess.run(cmd_copy, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+                return output_path
+            except Exception as e:
+                print(f"[FFmpeg] Clip extraction failed: {e}")
+    else:
+        print("[Demo Indexer] ffmpeg not found. Using OpenCV as fallback for clip extraction.")
+        
+    # OpenCV Fallback (silent video, but visual is extracted)
+    try:
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        start_frame = max(0, int(start * fps))
+        end_frame = min(total_frames, int((start + duration) * fps))
+        
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        success = False
+        for codec in ['H264', 'X264', 'mp4v']:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+                
+                if not out.isOpened():
+                    continue
+                    
+                cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+                for _ in range(start_frame, end_frame):
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    out.write(frame)
+                out.release()
+                
+                if os.path.exists(output_path) and os.path.getsize(output_path) > 100:
+                    success = True
+                    break
+            except Exception:
+                continue
+                
+        cap.release()
+        if success:
+            return output_path
+    except Exception as e:
+        print(f"[OpenCV Fallback] Clip extraction failed: {e}")
+        
+    return None
 
 
 def search_and_retrieve(query: str):
@@ -239,6 +285,8 @@ def search_and_retrieve(query: str):
     # Extract video clip for the top result
     top_result = results[0]
     clip_path = extract_clip(active_video_path, top_result.timestamp)
+    if not clip_path:
+        clip_path = None
     
     output_text = "### Match Results:\n"
     for i, r in enumerate(results):
