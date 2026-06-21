@@ -63,6 +63,7 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
             "force_keyframes_at_cuts": True,
             "quiet": True,
             "no_warnings": True,
+            "ffmpeg_location": get_ffmpeg_binary(),
         }
         progress(0.3, desc="Downloading video from YouTube (partial download first 5m)...")
     else:
