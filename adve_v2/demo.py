@@ -28,22 +28,44 @@ os.makedirs(index_dir, exist_ok=True)
 search_index = ADVESearchIndex(index_dir)
 
 
-def get_ffmpeg_binary() -> Optional[str]:
-    """Find a working ffmpeg binary on the system (PATH or imageio-ffmpeg)."""
+def setup_ffmpeg() -> str:
+    """Ensure ffmpeg.exe is available in a local bin directory, add it to PATH, and return the bin dir."""
     import shutil
-    sys_ffmpeg = shutil.which("ffmpeg")
-    if sys_ffmpeg:
-        return sys_ffmpeg
+    
+    bin_dir = os.path.join(current_dir, "data", "bin")
+    os.makedirs(bin_dir, exist_ok=True)
+    
+    target_exe = os.path.join(bin_dir, "ffmpeg.exe")
+    if not os.path.exists(target_exe):
+        try:
+            import imageio_ffmpeg
+            src_exe = imageio_ffmpeg.get_ffmpeg_exe()
+            print(f"[FFmpeg Setup] Copying {src_exe} to {target_exe}...")
+            shutil.copy2(src_exe, target_exe)
+        except Exception as e:
+            print(f"[FFmpeg Setup] Failed to setup ffmpeg copy: {e}")
+            
+    # Add bin_dir to PATH
+    if bin_dir not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
         
-    try:
-        import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except ImportError:
-        return None
+    return bin_dir
+
+
+def get_ffmpeg_binary() -> Optional[str]:
+    """Find a working ffmpeg binary on the system (PATH or local copy)."""
+    bin_dir = setup_ffmpeg()
+    local_ffmpeg = os.path.join(bin_dir, "ffmpeg.exe")
+    if os.path.exists(local_ffmpeg):
+        return local_ffmpeg
+        
+    import shutil
+    return shutil.which("ffmpeg")
 
 
 def is_ffmpeg_available() -> bool:
     return get_ffmpeg_binary() is not None
+
 
 
 
@@ -63,7 +85,7 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
             "force_keyframes_at_cuts": True,
             "quiet": True,
             "no_warnings": True,
-            "ffmpeg_location": get_ffmpeg_binary(),
+            "ffmpeg_location": setup_ffmpeg(),
         }
         progress(0.3, desc="Downloading video from YouTube (partial download first 5m)...")
     else:
