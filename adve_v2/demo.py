@@ -11,6 +11,9 @@ import yt_dlp
 import groq
 
 from typing import Optional
+import static_ffmpeg
+static_ffmpeg.add_paths()
+
 
 # Ensure adve_v2 is in the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,43 +31,9 @@ os.makedirs(index_dir, exist_ok=True)
 search_index = ADVESearchIndex(index_dir)
 
 
-def setup_ffmpeg() -> str:
-    """Ensure ffmpeg.exe is available in a local bin directory, add it to PATH, and return the bin dir."""
-    import shutil
-    
-    bin_dir = os.path.join(current_dir, "data", "bin")
-    os.makedirs(bin_dir, exist_ok=True)
-    
-    target_exe = os.path.join(bin_dir, "ffmpeg.exe")
-    if not os.path.exists(target_exe):
-        try:
-            import imageio_ffmpeg
-            src_exe = imageio_ffmpeg.get_ffmpeg_exe()
-            print(f"[FFmpeg Setup] Copying {src_exe} to {target_exe}...")
-            shutil.copy2(src_exe, target_exe)
-        except Exception as e:
-            print(f"[FFmpeg Setup] Failed to setup ffmpeg copy: {e}")
-            
-    # Add bin_dir to PATH
-    if bin_dir not in os.environ.get("PATH", ""):
-        os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
-        
-    return bin_dir
-
-
-def get_ffmpeg_binary() -> Optional[str]:
-    """Find a working ffmpeg binary on the system (PATH or local copy)."""
-    bin_dir = setup_ffmpeg()
-    local_ffmpeg = os.path.join(bin_dir, "ffmpeg.exe")
-    if os.path.exists(local_ffmpeg):
-        return local_ffmpeg
-        
-    import shutil
-    return shutil.which("ffmpeg")
-
-
 def is_ffmpeg_available() -> bool:
-    return get_ffmpeg_binary() is not None
+    return shutil.which("ffmpeg") is not None
+
 
 
 
@@ -85,7 +54,6 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
             "force_keyframes_at_cuts": True,
             "quiet": True,
             "no_warnings": True,
-            "ffmpeg_location": setup_ffmpeg(),
         }
         progress(0.3, desc="Downloading video from YouTube (partial download first 5m)...")
     else:
@@ -217,7 +185,7 @@ def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> s
     output_path = os.path.join("clips", f"clip_{timestamp:.1f}.mp4")
     
     # Check if ffmpeg is available
-    ffmpeg_bin = get_ffmpeg_binary()
+    ffmpeg_bin = shutil.which("ffmpeg")
     if ffmpeg_bin:
         # Try browser-friendly h264 re-encoding first
         cmd = [
