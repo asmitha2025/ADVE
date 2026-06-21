@@ -82,7 +82,7 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
         raise RuntimeError(f"Failed to download YouTube video: {e}")
 
 
-def index_video(video_path: str, progress=gr.Progress()) -> str:
+def index_video(video_path: str, sampling_rate: float = 1.0, progress=gr.Progress()) -> str:
     """Run ADVE pipeline to index anchor frames in the video."""
     global active_video_path
     active_video_path = video_path
@@ -97,7 +97,10 @@ def index_video(video_path: str, progress=gr.Progress()) -> str:
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     cap.release()
     
+    # Calculate step size based on sampling rate (e.g. 1 FPS means processing 1 frame every 'fps' frames)
+    frame_step = max(1, int(fps / sampling_rate))
     print(f"[Demo Indexer] Total frames to process: {total_frames} @ {fps:.1f} FPS")
+    print(f"[Demo Indexer] Sampling rate: {sampling_rate} FPS (processing 1 frame every {frame_step} frames)")
 
     # Clear out any previous database entries to keep the demo clean
     try:
@@ -113,6 +116,7 @@ def index_video(video_path: str, progress=gr.Progress()) -> str:
     
     cap = cv2.VideoCapture(video_path)
     idx = 0
+    sampled_idx = 0
     anchors_count = 0
     start_time = time.time()
     
@@ -122,48 +126,51 @@ def index_video(video_path: str, progress=gr.Progress()) -> str:
         if not ret:
             break
             
-        result = pipeline.process_frame(frame, idx, no_validation=True)
-        
-        # Save only ANCHOR frames for RAG chunking
-        if result["is_anchor"]:
-            timestamp = idx / fps
-            search_index.add(video_path, "youtube_cam", timestamp, idx, result["embedding"], is_anchor=True)
-            anchors_count += 1
+        if idx % frame_step == 0:
+            result = pipeline.process_frame(frame, idx, no_validation=True)
+            
+            # Save only ANCHOR frames for RAG chunking
+            if result["is_anchor"]:
+                timestamp = idx / fps
+                search_index.add(video_path, "youtube_cam", timestamp, idx, result["embedding"], is_anchor=True)
+                anchors_count += 1
+            sampled_idx += 1
             
         idx += 1
         if idx % 15 == 0:
             progress_pct = min(0.99, idx / max(1, total_frames))
-            progress(progress_pct, desc=f"Ingested {idx}/{total_frames} frames (Anchors created: {anchors_count})")
+            progress(progress_pct, desc=f"Ingested {idx}/{total_frames} frames (Processed {sampled_idx} sampled frames)")
 
     cap.release()
     search_index.save()
     elapsed = time.time() - start_time
     
-    savings = 100.0 * (1.0 - (anchors_count / max(1, idx)))
+    savings = 100.0 * (1.0 - (anchors_count / max(1, sampled_idx)))
     summary = (
         f"✅ Indexing Complete!\n"
         f"- Total Video Frames: {idx}\n"
+        f"- Sampled Frames Processed: {sampled_idx} (sampling at {sampling_rate} FPS)\n"
         f"- RAG Anchor Chunks Created: {anchors_count}\n"
         f"- ADVE Neural Cost Savings: {savings:.1f}%\n"
-        f"- Processing Time: {elapsed:.2f} seconds ({idx/elapsed:.1f} FPS)"
+        f"- Processing Time: {elapsed:.2f} seconds ({sampled_idx/elapsed:.1f} FPS)"
     )
     return summary
 
 
-def handle_youtube_index(url: str, progress=gr.Progress()) -> str:
+def handle_youtube_index(url: str, sampling_rate: float, progress=gr.Progress()) -> str:
     if not url.strip():
         return "Please enter a valid YouTube URL."
     try:
         video_path = download_youtube(url, progress)
-        return index_video(video_path, progress)
+        return index_video(video_path, sampling_rate, progress)
     except Exception as e:
         return f"Error: {e}"
 
 
-def handle_local_index(file, progress=gr.Progress()) -> str:
+def handle_local_index(file, sampling_rate: float, progress=gr.Progress()) -> str:
     if file is None:
         return "Please upload a video file first."
-    return index_video(file, progress)
+    return index_video(file, sampling_rate, progress)
 
 
 def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> str:
@@ -395,6 +402,7 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
             with gr.Row():
                 with gr.Column(scale=2):
                     yt_url = gr.Textbox(label="YouTube Link", placeholder="https://www.youtube.com/watch?v=aircAruvnKk")
+                    yt_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=5.0, value=1.0, step=0.1, info="Frames to process per second. 1.0 FPS is recommended for standard RAG indexing.")
                     yt_index_btn = gr.Button("Download & Index Video", variant="primary")
                 with gr.Column(scale=3):
                     yt_status = gr.Textbox(label="Status / Progress Summary", interactive=False, placeholder="Paste a link and click Index...")
@@ -404,6 +412,7 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
             with gr.Row():
                 with gr.Column(scale=2):
                     local_file = gr.File(label="Upload MP4 / WebM File", file_types=["video"])
+                    local_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=5.0, value=1.0, step=0.1, info="Frames to process per second. 1.0 FPS is recommended for standard RAG indexing.")
                     local_index_btn = gr.Button("Index Uploaded Video", variant="primary")
                 with gr.Column(scale=3):
                     local_status = gr.Textbox(label="Status / Progress Summary", interactive=False, placeholder="Upload a file and click Index...")
@@ -434,13 +443,13 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
     # ── Button Bindings ──────────────────────────────────────────────────────────
     yt_index_btn.click(
         fn=handle_youtube_index,
-        inputs=[yt_url],
+        inputs=[yt_url, yt_fps],
         outputs=[yt_status]
     )
     
     local_index_btn.click(
         fn=handle_local_index,
-        inputs=[local_file],
+        inputs=[local_file, local_fps],
         outputs=[local_status]
     )
     
