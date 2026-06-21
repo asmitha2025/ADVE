@@ -22,6 +22,7 @@ sys.path.insert(0, current_dir)
 from adve.core.pipeline import ADVEPipeline
 from adve.core.config import Config
 from adve.search.index import ADVESearchIndex, SearchResult
+from adve.core.audio_transcriber import AudioTranscriber
 
 # Global state to keep track of active index, video, and search results
 active_video_path = None
@@ -148,6 +149,21 @@ def index_video(video_path: str, sampling_rate: float = 5.0, progress=gr.Progres
 
     cap.release()
     search_index.save()
+    
+    # Extract and transcribe audio using Whisper
+    progress(0.9, desc="Transcribing audio with Whisper...")
+    try:
+        print(f"[Demo Indexer] Extracting and transcribing audio from {video_path}...")
+        transcriber = AudioTranscriber(model_name="tiny")
+        segments = transcriber.transcribe(video_path)
+        if segments:
+            search_index.add_transcripts(video_path, segments)
+            print(f"[Demo Indexer] Successfully indexed {len(segments)} audio segments.")
+        else:
+            print("[Demo Indexer] No audio segments transcribed.")
+    except Exception as e:
+        print(f"Warning: Audio transcription failed or skipped: {e}")
+
     elapsed = time.time() - start_time
     
     savings = 100.0 * (1.0 - (anchors_count / max(1, sampled_idx)))
@@ -400,15 +416,38 @@ def rag_answer_question(question: str):
         from groq import Groq
         client = Groq(api_key=api_key)
         
-        # Build prompt content with base64 visual frames
+        # Build prompt content with base64 visual frames and speech transcripts
         prompt_content = [
             {
                 "type": "text", 
-                "text": f"You are an AI Video RAG agent explaining scenes from a video. Answer the user's question: '{question}' using the relevant retrieved frames below."
+                "text": (
+                    f"You are an AI Video RAG agent explaining scenes from a video.\n"
+                    f"Answer the user's question: '{question}' using the relevant retrieved frames (images) "
+                    f"and corresponding spoken audio transcripts (text) below."
+                )
             }
         ]
         
         for i, r in enumerate(active_search_results[:3]):
+            # Get transcripts in a window of 15 seconds around the match timestamp (5s before to 10s after)
+            w_start = max(0.0, r.timestamp - 5.0)
+            w_end = r.timestamp + 10.0
+            
+            transcript_text = ""
+            try:
+                cursor = search_index.db.execute(
+                    "SELECT timestamp, text FROM transcripts WHERE video_path = ? AND timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC",
+                    (active_video_path, w_start, w_end)
+                )
+                rows = cursor.fetchall()
+                if rows:
+                    transcript_text = " ".join([f"[{ts:.1f}s] {text}" for ts, text in rows])
+                else:
+                    transcript_text = "(No spoken audio detected in this window)"
+            except Exception as e:
+                print(f"[Demo RAG] Error querying transcripts: {e}")
+                transcript_text = "(Error retrieving transcripts)"
+
             cap = cv2.VideoCapture(r.video_path)
             cap.set(cv2.CAP_PROP_POS_FRAMES, r.frame_idx)
             ret, frame = cap.read()
@@ -426,7 +465,10 @@ def rag_answer_question(question: str):
                 
                 prompt_content.append({
                     "type": "text",
-                    "text": f"Retrieved Frame {i+1} at timestamp {r.timestamp:.1f}s (match score: {r.similarity * 100:.1f}%):"
+                    "text": (
+                        f"--- Scene Chunk {i+1} at timestamp {r.timestamp:.1f}s (match score: {r.similarity * 100:.1f}%) ---\n"
+                        f"Spoken Dialogue Transcript: \"{transcript_text}\""
+                    )
                 })
                 prompt_content.append({
                     "type": "image_url",
@@ -437,7 +479,7 @@ def rag_answer_question(question: str):
                 
         prompt_content.append({
             "type": "text",
-            "text": "Analyze the visual details in the frames and answer the question concisely."
+            "text": "Analyze both the visual details in the frames and the spoken dialogue transcripts to answer the user's question accurately."
         })
         
         print("[Demo RAG] Sending multi-modal query to Groq Llama 3.2 Vision...")
