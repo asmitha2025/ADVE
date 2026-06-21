@@ -4,6 +4,7 @@ import os
 import time
 from typing import Optional
 from ultralytics import YOLO
+from adve.core.frame_filter import FrameFilter
 
 from adve.core.config import Config
 from adve.core.spatial_graph import SpatialGraph
@@ -30,6 +31,17 @@ class ADVEPipeline:
 
         # Single shared YOLO instance — preserves ByteTrack ID state across frames
         self.yolo = YOLO(config.YOLO_MODEL)
+        yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
+        self.yolo.to(yolo_device)
+        
+        # Enable FP16 (half precision) for YOLO on CUDA
+        yolo_half = getattr(config, "YOLO_HALF", True)
+        if yolo_half and yolo_device == "cuda":
+            try:
+                self.yolo.model.half()
+                print("[ADVEPipeline] Enabled FP16 (Half Precision) for YOLOv8 tracking on GPU.")
+            except Exception as e:
+                print(f"[ADVEPipeline] Warning: Failed to convert YOLO model to FP16: {e}")
 
         self.anchor_proc     = AnchorProcessor(config, self.yolo)
         yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
@@ -45,6 +57,8 @@ class ADVEPipeline:
         self.frames_since_anchor: int = 0
         self.prev_frame: Optional[np.ndarray] = None
         self.force_refresh:    bool = False
+        motion_threshold = getattr(config, "MOTION_THRESHOLD", 0.02)
+        self.frame_filter = FrameFilter(motion_threshold=motion_threshold)
 
     # ------------------------------------------------------------------
     # Anchor decision logic
@@ -110,6 +124,34 @@ class ADVEPipeline:
     # ------------------------------------------------------------------
 
     def process_frame(self, frame: np.ndarray, frame_idx: int, no_validation: bool = True) -> dict:
+        # --- Motion filter ---
+        if self.anchor_graph is not None:
+            has_motion, score = self.frame_filter.has_motion(frame)
+            if not has_motion:
+                self.prev_frame = frame.copy()
+                self.frames_since_anchor += 1
+                
+                # Log in validator to keep tracking continuous
+                sim = self.validator.log(
+                    frame_idx       = frame_idx,
+                    reconstructed   = self.anchor_embedding,
+                    ground_truth    = None if no_validation else self.anchor_proc.embed_frame(frame),
+                    is_anchor       = False,
+                    delta_magnitude = 0.0,
+                    encoder_called  = False,
+                )
+                
+                return {
+                    "embedding":       self.anchor_embedding,
+                    "is_anchor":       False,
+                    "encoder_called":  False,
+                    "delta_magnitude": 0.0,
+                    "appearance_delta": 0.0,
+                    "cosine_sim":      sim,
+                    "frame_idx":       frame_idx,
+                    "yolo_skipped":    True,
+                }
+
         is_anchor      = False
         encoder_called = False
         delta_magnitude = 0.0

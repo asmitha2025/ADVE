@@ -82,7 +82,7 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
         raise RuntimeError(f"Failed to download YouTube video: {e}")
 
 
-def index_video(video_path: str, sampling_rate: float = 1.0, progress=gr.Progress()) -> str:
+def index_video(video_path: str, sampling_rate: float = 5.0, progress=gr.Progress()) -> str:
     """Run ADVE pipeline to index anchor frames in the video."""
     global active_video_path
     active_video_path = video_path
@@ -402,7 +402,7 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
             with gr.Row():
                 with gr.Column(scale=2):
                     yt_url = gr.Textbox(label="YouTube Link", placeholder="https://www.youtube.com/watch?v=aircAruvnKk")
-                    yt_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=5.0, value=1.0, step=0.1, info="Frames to process per second. 1.0 FPS is recommended for standard RAG indexing.")
+                    yt_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=10.0, value=5.0, step=0.1, info="Frames to process per second. 5.0 FPS is recommended for standard RAG indexing.")
                     yt_index_btn = gr.Button("Download & Index Video", variant="primary")
                 with gr.Column(scale=3):
                     yt_status = gr.Textbox(label="Status / Progress Summary", interactive=False, placeholder="Paste a link and click Index...")
@@ -412,7 +412,7 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
             with gr.Row():
                 with gr.Column(scale=2):
                     local_file = gr.File(label="Upload MP4 / WebM File", file_types=["video"])
-                    local_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=5.0, value=1.0, step=0.1, info="Frames to process per second. 1.0 FPS is recommended for standard RAG indexing.")
+                    local_fps = gr.Slider(label="Frame Sampling Rate (FPS)", minimum=0.1, maximum=10.0, value=5.0, step=0.1, info="Frames to process per second. 5.0 FPS is recommended for standard RAG indexing.")
                     local_index_btn = gr.Button("Index Uploaded Video", variant="primary")
                 with gr.Column(scale=3):
                     local_status = gr.Textbox(label="Status / Progress Summary", interactive=False, placeholder="Upload a file and click Index...")
