@@ -10,6 +10,8 @@ import gradio as gr
 import yt_dlp
 import groq
 
+from typing import Optional
+
 # Ensure adve_v2 is in the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
@@ -26,13 +28,23 @@ os.makedirs(index_dir, exist_ok=True)
 search_index = ADVESearchIndex(index_dir)
 
 
-def is_ffmpeg_available() -> bool:
-    import subprocess
+def get_ffmpeg_binary() -> Optional[str]:
+    """Find a working ffmpeg binary on the system (PATH or imageio-ffmpeg)."""
+    import shutil
+    sys_ffmpeg = shutil.which("ffmpeg")
+    if sys_ffmpeg:
+        return sys_ffmpeg
+        
     try:
-        subprocess.run(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-        return True
-    except (subprocess.SubprocessError, FileNotFoundError):
-        return False
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        return None
+
+
+def is_ffmpeg_available() -> bool:
+    return get_ffmpeg_binary() is not None
+
 
 
 def download_youtube(url: str, progress=gr.Progress()) -> str:
@@ -103,16 +115,18 @@ def index_video(video_path: str, sampling_rate: float = 5.0, progress=gr.Progres
     print(f"[Demo Indexer] Sampling rate: {sampling_rate} FPS (processing 1 frame every {frame_step} frames)")
 
     # Clear out any previous database entries to keep the demo clean
-    try:
-        if os.path.exists(os.path.join(index_dir, "embeddings.faiss")):
-            os.remove(os.path.join(index_dir, "embeddings.faiss"))
-        if os.path.exists(os.path.join(index_dir, "metadata.db")):
-            os.remove(os.path.join(index_dir, "metadata.db"))
-    except Exception as e:
-        print(f"Warning: Failed to clear old database: {e}")
-        
     global search_index
-    search_index = ADVESearchIndex(index_dir)
+    try:
+        search_index.clear()
+    except Exception as e:
+        print(f"Warning: Failed to clear search index cleanly: {e}")
+        # Fallback to recreate
+        try:
+            search_index = ADVESearchIndex(index_dir)
+            search_index.clear()
+        except Exception as e2:
+            print(f"Warning: Recreate fallback failed: {e2}")
+
     
     cap = cv2.VideoCapture(video_path)
     idx = 0
@@ -174,16 +188,17 @@ def handle_local_index(file, sampling_rate: float, progress=gr.Progress()) -> st
 
 
 def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> str:
-    """Extract a 10s video clip around the timestamp. Falls back to OpenCV if ffmpeg is missing."""
+    """Extract a video clip around the timestamp. Falls back to OpenCV if ffmpeg is missing."""
     os.makedirs("clips", exist_ok=True)
     start = max(0.0, timestamp - 2.0)
     output_path = os.path.join("clips", f"clip_{timestamp:.1f}.mp4")
     
     # Check if ffmpeg is available
-    if is_ffmpeg_available():
+    ffmpeg_bin = get_ffmpeg_binary()
+    if ffmpeg_bin:
         # Try browser-friendly h264 re-encoding first
         cmd = [
-            "ffmpeg", "-y",
+            ffmpeg_bin, "-y",
             "-ss", str(start),
             "-i", video_path,
             "-t", str(duration),
@@ -198,7 +213,7 @@ def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> s
         except Exception:
             # Fallback to copy mode
             cmd_copy = [
-                "ffmpeg", "-y",
+                ffmpeg_bin, "-y",
                 "-ss", str(start),
                 "-i", video_path,
                 "-t", str(duration),
@@ -257,21 +272,70 @@ def extract_clip(video_path: str, timestamp: float, duration: float = 10.0) -> s
     return None
 
 
-def search_and_retrieve(query: str):
+def get_dynamic_duration(video_path: str, start_time: float, default_duration: float = 10.0) -> float:
+    """Query database for the next anchor frame to calculate the dynamic scene duration."""
+    try:
+        cursor = search_index.db.execute(
+            "SELECT timestamp FROM embeddings WHERE video_path = ? AND timestamp > ? AND is_anchor = 1 ORDER BY timestamp ASC LIMIT 1",
+            (video_path, start_time)
+        )
+        row = cursor.fetchone()
+        if row:
+            next_ts = row[0]
+            # Since clip extraction starts at start_time - 2.0 (see extract_clip):
+            # start = max(0.0, start_time - 2.0)
+            # The duration should cover from start until the next anchor timestamp + a 1.0 second buffer
+            start = max(0.0, start_time - 2.0)
+            duration = (next_ts - start) + 1.0
+            return max(3.0, min(60.0, duration))
+        else:
+            # Last scene in video: extract to the end of the video
+            cap = cv2.VideoCapture(video_path)
+            fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            total_duration = total_frames / fps
+            cap.release()
+            start = max(0.0, start_time - 2.0)
+            duration = total_duration - start
+            return max(3.0, min(60.0, duration))
+    except Exception as e:
+        print(f"[Dynamic Duration] Error querying database: {e}")
+        return default_duration
+
+
+def search_and_retrieve(query: str, clip_duration: float, use_dynamic_duration: bool):
     """Search natural language and return matching frame images and video clips."""
     global active_search_results, active_video_path
     if not active_video_path:
-        return "No video has been indexed yet. Please index a video first.", [], None
+        return (
+            "No video has been indexed yet. Please index a video first.", 
+            [], 
+            gr.Video(value=None, label="Match 1 Clip", visible=False),
+            gr.Video(value=None, label="Match 2 Clip", visible=False),
+            gr.Video(value=None, label="Match 3 Clip", visible=False)
+        )
         
     if not query.strip():
-        return "Please enter a search query.", [], None
+        return (
+            "Please enter a search query.", 
+            [], 
+            gr.Video(value=None, label="Match 1 Clip", visible=False),
+            gr.Video(value=None, label="Match 2 Clip", visible=False),
+            gr.Video(value=None, label="Match 3 Clip", visible=False)
+        )
         
     print(f"[Demo Search] Querying: '{query}'")
     results = search_index.search_by_text(query, k=5)
     active_search_results = results
     
     if not results:
-        return "No matches found.", [], None
+        return (
+            "No matches found.", 
+            [], 
+            gr.Video(value=None, label="Match 1 Clip", visible=False),
+            gr.Video(value=None, label="Match 2 Clip", visible=False),
+            gr.Video(value=None, label="Match 3 Clip", visible=False)
+        )
         
     # Generate matching visual previews
     previews = []
@@ -288,17 +352,37 @@ def search_and_retrieve(query: str):
             cv2.imwrite(preview_path, frame)
             previews.append((preview_path, f"{r.timestamp:.1f}s (Match: {r.similarity * 100:.1f}%)"))
             
-    # Extract video clip for the top result
-    top_result = results[0]
-    clip_path = extract_clip(active_video_path, top_result.timestamp)
-    if not clip_path:
-        clip_path = None
+    # Extract video clips for top 3 results
+    clip_paths = [None, None, None]
+    labels = ["Match 1 Clip", "Match 2 Clip", "Match 3 Clip"]
+    visibilities = [False, False, False]
     
+    for i in range(min(3, len(results))):
+        r = results[i]
+        if use_dynamic_duration:
+            dur = get_dynamic_duration(active_video_path, r.timestamp, default_duration=clip_duration)
+        else:
+            dur = clip_duration
+            
+        print(f"[Demo Search] Extracting clip {i+1} at {r.timestamp:.1f}s with duration {dur:.1f}s")
+        c_path = extract_clip(active_video_path, r.timestamp, duration=dur)
+        if c_path and os.path.exists(c_path):
+            clip_paths[i] = c_path
+            labels[i] = f"Match {i+1}: {r.timestamp:.1f}s (Similarity: {r.similarity * 100:.1f}%, Duration: {dur:.1f}s)"
+            visibilities[i] = True
+            
     output_text = "### Match Results:\n"
     for i, r in enumerate(results):
         output_text += f"{i+1}. **Timestamp: {r.timestamp:.1f}s** (Frame {r.frame_idx}) | Similarity: **{r.similarity * 100:.1f}%**\n"
         
-    return output_text, previews, clip_path
+    return (
+        output_text,
+        previews,
+        gr.Video(value=clip_paths[0], label=labels[0], visible=visibilities[0]),
+        gr.Video(value=clip_paths[1], label=labels[1], visible=visibilities[1]),
+        gr.Video(value=clip_paths[2], label=labels[2], visible=visibilities[2])
+    )
+
 
 
 def rag_answer_question(question: str):
@@ -422,12 +506,17 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
         with gr.Column(scale=2):
             gr.Markdown("### 🔍 Semantic Scene Search")
             search_query = gr.Textbox(label="Query (e.g. 'pedestrians crossing road', 'concept of neural networks')", placeholder="What are you looking for?")
+            clip_duration = gr.Slider(label="Clip Duration (seconds)", minimum=3.0, maximum=60.0, value=10.0, step=1.0, info="Length of the extracted clip")
+            use_dynamic_duration = gr.Checkbox(label="Auto-Detect Scene Duration (Dynamic)", value=False, info="Automatically compute clip length using scene/anchor boundaries")
             search_btn = gr.Button("Search Video", variant="primary")
             search_metrics = gr.Markdown("No query submitted yet.")
             
         with gr.Column(scale=3):
             gr.Markdown("### 🎞️ Match Preview & Clip Playback")
-            top_clip_player = gr.Video(label="Top Match 10-Second Clip")
+            with gr.Column():
+                clip_player_1 = gr.Video(label="Match 1 Clip", visible=False)
+                clip_player_2 = gr.Video(label="Match 2 Clip", visible=False)
+                clip_player_3 = gr.Video(label="Match 3 Clip", visible=False)
             gallery_previews = gr.Gallery(label="Matching Frame Anchors", columns=3, rows=2, object_fit="contain")
 
     with gr.Row(visible=True) as rag_row:
@@ -455,8 +544,8 @@ with gr.Blocks(theme=gr.themes.Monochrome(), css=custom_css) as demo:
     
     search_btn.click(
         fn=search_and_retrieve,
-        inputs=[search_query],
-        outputs=[search_metrics, gallery_previews, top_clip_player]
+        inputs=[search_query, clip_duration, use_dynamic_duration],
+        outputs=[search_metrics, gallery_previews, clip_player_1, clip_player_2, clip_player_3]
     )
     
     rag_btn.click(

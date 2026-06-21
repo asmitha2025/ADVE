@@ -234,6 +234,16 @@ class ADVESearchIndex:
             self.faiss_index, str(self.index_dir / "embeddings.faiss")
         )
 
+    def clear(self):
+        """Clear all embeddings and transcripts from the index and database."""
+        self.faiss_index = faiss.IndexFlatIP(self.dim)
+        self.db.execute("DELETE FROM embeddings")
+        self.db.execute("DELETE FROM transcripts")
+        self.db.execute("DELETE FROM sqlite_sequence WHERE name IN ('embeddings', 'transcripts')")
+        self.db.commit()
+        self.save()
+
+
     def stats(self) -> dict:
         count = self.db.execute("SELECT COUNT(*) FROM embeddings").fetchone()[0]
         anchors = self.db.execute(
