@@ -90,3 +90,41 @@ class DeltaTracker:
         delta = anchor_graph.compute_delta(current)
 
         return current, delta
+
+    def compute_appearance_delta_per_object(
+        self,
+        frame:        np.ndarray,
+        anchor_graph: SpatialGraph,
+        current_graph: SpatialGraph,
+    ) -> dict:
+        """
+        For each tracked object: compare current crop appearance
+        to anchor crop appearance.
+        Returns {obj_id: appearance_delta_score}
+        """
+        appearance_deltas = {}
+
+        for obj_id, curr_obj in current_graph.objects.items():
+            if obj_id not in anchor_graph.objects:
+                continue
+
+            x1, y1, x2, y2 = curr_obj.bbox
+            curr_crop = frame[y1:y2, x1:x2]
+
+            if curr_crop.size == 0:
+                continue
+
+            # Compare histogram to cached anchor crop histogram
+            anchor_hist = anchor_graph.objects[obj_id].appearance_hist
+            if anchor_hist is None:
+                continue
+
+            curr_hist = cv2.calcHist(
+                [curr_crop], [0,1,2], None, [8,8,8], [0,256,0,256,0,256]
+            )
+            curr_hist = cv2.normalize(curr_hist, curr_hist).flatten()
+
+            corr = cv2.compareHist(anchor_hist, curr_hist, cv2.HISTCMP_CORREL)
+            appearance_deltas[obj_id] = float(1.0 - corr)
+
+        return appearance_deltas

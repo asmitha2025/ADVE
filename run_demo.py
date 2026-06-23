@@ -19,10 +19,10 @@ def print_banner():
 def check_whisper():
     try:
         import whisper
-        print("✓ Whisper is installed.")
+        print("[OK] Whisper is installed.")
         return True
     except ImportError:
-        print("! Whisper is not installed.")
+        print("[INFO] Whisper is not installed.")
         print("To enable Whisper audio transcription, run: pip install openai-whisper")
         print("Proceeding without Whisper (speech search will be mocked/disabled).")
         return False

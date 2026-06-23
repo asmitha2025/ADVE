@@ -66,10 +66,24 @@ class EmbeddingReconstructor:
                             out = anchor_emb + self.residual_weight * delta_pred
                             return out / (out.norm(dim=-1, keepdim=True) + 1e-8)
 
-                    self.model = ReconstructionMLP()
-                    self.model.load_state_dict(torch.load(path, map_location=self.device))
+                    # Dynamic clip_dim detection from model weights
+                    # weights_only=False is required because our checkpoint contains
+                    # custom classes (ReconstructionMLP). This is safe since we control
+                    # the checkpoint file. Suppress the FutureWarning explicitly.
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", FutureWarning)
+                        state_dict = torch.load(path, map_location=self.device, weights_only=False)
+                    clip_dim = 512
+                    for key in ["net.8.bias", "net.8.weight", "net.6.bias", "net.6.weight"]:
+                        if key in state_dict:
+                            clip_dim = state_dict[key].shape[0]
+                            break
+
+                    self.model = ReconstructionMLP(clip_dim=clip_dim)
+                    self.model.load_state_dict(state_dict)
                     self.model.eval()
-                    print(f"[EmbeddingReconstructor] Loaded ReconstructionMLP from {path}")
+                    print(f"[EmbeddingReconstructor] Loaded ReconstructionMLP (clip_dim={clip_dim}) from {path}")
                     break
                 except Exception as e:
                     print(f"[EmbeddingReconstructor] Failed to load model weights from {path}: {e}")
@@ -88,16 +102,16 @@ class EmbeddingReconstructor:
         return vec
 
     def pool_object_embeddings(
-        self, objects: dict, max_objects: int = 8
+        self, objects: dict, max_objects: int = 8, clip_dim: int = 512
     ) -> np.ndarray:
-        """Pool per-object embeddings to fixed 512-d vector."""
+        """Pool per-object embeddings to fixed clip_dim vector."""
         valid = [
             (obj.area, obj.embedding)
             for obj in objects.values()
             if obj.embedding is not None
         ]
         if not valid:
-            return np.zeros(512, dtype=np.float32)
+            return np.zeros(clip_dim, dtype=np.float32)
 
         valid.sort(key=lambda x: -x[0])  # sort by area, largest first
         valid = valid[:max_objects]
@@ -113,19 +127,40 @@ class EmbeddingReconstructor:
         anchor_graph:     SpatialGraph,
         current_graph:    SpatialGraph,
         delta:            dict,
-        anchor_embedding: np.ndarray,
+        anchor_embedding, # np.ndarray or List[np.ndarray]
     ) -> np.ndarray:
         """
-        Returns a normalised 512-d embedding approximating the current frame.
+        Returns a normalised embedding approximating the current frame.
         """
+        # Determine clip_dim dynamically
+        clip_dim = 512
+        if self.model is not None:
+            # Get clip_dim from the output layer
+            clip_dim = self.model.net[-1].out_features
+
+        # Resolve rolling anchor buffer blending (Improvement 3)
+        if isinstance(anchor_embedding, list):
+            if not anchor_embedding:
+                anchor_emb_single = np.zeros(clip_dim, dtype=np.float32)
+            elif len(anchor_embedding) == 1:
+                anchor_emb_single = anchor_embedding[0]
+            else:
+                weights = [0.6, 0.3, 0.1]
+                w_slice = weights[:len(anchor_embedding)]
+                combined = sum(w * e for w, e in zip(w_slice, reversed(anchor_embedding)))
+                norm = np.linalg.norm(combined)
+                anchor_emb_single = combined / (norm + 1e-8)
+        else:
+            anchor_emb_single = anchor_embedding
+
         # If MLP is loaded, attempt learned reconstruction
         if self.model is not None:
             try:
                 import torch
                 delta_vec = self.delta_to_vector(delta)
-                object_pool = self.pool_object_embeddings(current_graph.objects)
+                object_pool = self.pool_object_embeddings(current_graph.objects, clip_dim=clip_dim)
 
-                anchor_t = torch.tensor(anchor_embedding, dtype=torch.float32).unsqueeze(0).to(self.device)
+                anchor_t = torch.tensor(anchor_emb_single, dtype=torch.float32).unsqueeze(0).to(self.device)
                 pool_t = torch.tensor(object_pool, dtype=torch.float32).unsqueeze(0).to(self.device)
                 delta_t = torch.tensor(delta_vec[:128], dtype=torch.float32).unsqueeze(0).to(self.device)
 
@@ -145,7 +180,7 @@ class EmbeddingReconstructor:
 
         # Fallback: if no objects tracked, return anchor embedding unchanged
         if not valid_objs:
-            return anchor_embedding.copy()
+            return anchor_emb_single.copy()
 
         embeddings: list = []
         weights:    list = []
@@ -177,7 +212,7 @@ class EmbeddingReconstructor:
 
         # Blend: when delta ≈ 0 → trust anchor; when delta is large → trust object blend
         blend = float(np.clip(delta.get("total_magnitude", 0.0), 0.0, 1.0))
-        reconstructed = (1.0 - blend) * anchor_embedding + blend * object_blend
+        reconstructed = (1.0 - blend) * anchor_emb_single + blend * object_blend
 
         # Normalise to unit sphere (CLIP convention)
         norm = np.linalg.norm(reconstructed)

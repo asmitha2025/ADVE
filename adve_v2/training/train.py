@@ -28,7 +28,13 @@ def train(json_path: str, epochs: int = 50, device: str = "cuda" if torch.cuda.i
     dataset    = ReconstructionDataset(json_path)
     dataloader = DataLoader(dataset, batch_size=256, shuffle=True, num_workers=0)
 
-    model     = ReconstructionMLP().to(device)
+    # Detect clip_dim dynamically from dataset sample (Improvement 1/2)
+    clip_dim = 512
+    if len(dataset) > 0:
+        sample = dataset[0]
+        clip_dim = sample["anchor_emb"].shape[0]
+
+    model     = ReconstructionMLP(clip_dim=clip_dim).to(device)
     criterion = ReconstructionLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
@@ -68,7 +74,7 @@ def train(json_path: str, epochs: int = 50, device: str = "cuda" if torch.cuda.i
             best_loss = avg_loss
             os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
             torch.save(model.state_dict(), checkpoint_path)
-            print(f"  → Saved best model (sim={avg_sim:.4f})")
+            print(f"  -> Saved best model (sim={avg_sim:.4f})")
 
     print(f"\nTraining complete. Best cosine sim: {1 - best_loss:.4f}")
     return model

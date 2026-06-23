@@ -108,13 +108,13 @@ class Validator:
 
         # --- Plot 2: Delta magnitude ---
         delta_mags = [r["delta_magnitude"] for r in self.records]
-        axes[1].plot(frames, delta_mags, color="#FF5722", linewidth=1, label="ΔG Magnitude")
+        axes[1].plot(frames, delta_mags, color="#FF5722", linewidth=1, label="dG Magnitude")
         axes[1].axhline(
             self.config.SPATIAL_THRESHOLD, color="orange",
             linestyle="--", linewidth=1, label="Anchor Trigger Threshold"
         )
         axes[1].set_title("Spatial Graph Delta Magnitude per Frame")
-        axes[1].set_ylabel("ΔG Magnitude")
+        axes[1].set_ylabel("dG Magnitude")
         axes[1].legend(fontsize=8)
         axes[1].grid(True, alpha=0.25)
 

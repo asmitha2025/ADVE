@@ -11,6 +11,7 @@ class ObjectState:
     center:     Tuple[float, float]
     area:       float
     embedding:  Optional[np.ndarray] = None  # None on delta frames
+    appearance_hist: Optional[np.ndarray] = None
 
 
 @dataclass

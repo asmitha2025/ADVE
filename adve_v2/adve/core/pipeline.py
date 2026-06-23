@@ -25,7 +25,7 @@ class ADVEPipeline:
       4. Validate per-frame cosine similarity vs ground truth
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, clip_model=None, clip_preprocess=None):
         self.config = config
         os.makedirs(config.OUTPUT_DIR, exist_ok=True)
 
@@ -43,7 +43,7 @@ class ADVEPipeline:
             except Exception as e:
                 print(f"[ADVEPipeline] Warning: Failed to convert YOLO model to FP16: {e}")
 
-        self.anchor_proc     = AnchorProcessor(config, self.yolo)
+        self.anchor_proc     = AnchorProcessor(config, self.yolo, clip_model=clip_model, clip_preprocess=clip_preprocess)
         yolo_device = getattr(config, "YOLO_DEVICE", config.DEVICE)
         yolo_imgsz = getattr(config, "YOLO_IMGSZ", 320)
         self.delta_tracker   = DeltaTracker(self.yolo, device=yolo_device, imgsz=yolo_imgsz)
@@ -54,11 +54,25 @@ class ADVEPipeline:
         self.anchor_graph:     Optional[SpatialGraph] = None
         self.anchor_embedding: Optional[np.ndarray]   = None
         self.anchor_frame:     Optional[np.ndarray]   = None
+        self.anchor_buffer:    list = []  # rolling anchor buffer (Improvement 3)
+        self.anchor_buffer_max = 3
         self.frames_since_anchor: int = 0
         self.prev_frame: Optional[np.ndarray] = None
         self.force_refresh:    bool = False
         motion_threshold = getattr(config, "MOTION_THRESHOLD", 0.02)
         self.frame_filter = FrameFilter(motion_threshold=motion_threshold)
+
+    def reset(self) -> None:
+        """Resets the pipeline state to start processing a new video."""
+        self.anchor_graph = None
+        self.anchor_embedding = None
+        self.anchor_frame = None
+        self.anchor_buffer = []
+        self.frames_since_anchor = 0
+        self.prev_frame = None
+        self.force_refresh = False
+        self.frame_filter.prev_gray = None
+
 
     # ------------------------------------------------------------------
     # Anchor decision logic
@@ -141,6 +155,16 @@ class ADVEPipeline:
                     encoder_called  = False,
                 )
                 
+                objects = []
+                for obj_id, obj in self.anchor_graph.objects.items():
+                    if obj.embedding is not None:
+                        objects.append({
+                            "obj_id":     obj_id,
+                            "class_name": obj.class_name,
+                            "bbox":       obj.bbox,
+                            "embedding":  obj.embedding,
+                        })
+                
                 return {
                     "embedding":       self.anchor_embedding,
                     "is_anchor":       False,
@@ -150,6 +174,7 @@ class ADVEPipeline:
                     "cosine_sim":      sim,
                     "frame_idx":       frame_idx,
                     "yolo_skipped":    True,
+                    "objects":         objects,
                 }
 
         is_anchor      = False
@@ -180,6 +205,12 @@ class ADVEPipeline:
             # ── ANCHOR FRAME ──────────────────────────────────────
             self.anchor_frame = frame.copy()
             self.anchor_graph, self.anchor_embedding = self.anchor_proc.process(frame)
+            
+            # Manage rolling anchor buffer (Improvement 3)
+            self.anchor_buffer.append(self.anchor_embedding)
+            if len(self.anchor_buffer) > self.anchor_buffer_max:
+                self.anchor_buffer.pop(0)
+
             self.frames_since_anchor = 0
             is_anchor      = True
             encoder_called = True
@@ -189,11 +220,28 @@ class ADVEPipeline:
 
         else:
             # ── DELTA FRAME ───────────────────────────────────────
+            # Improvement 6: Appearance Delta Per Object
+            appearance_deltas = self.delta_tracker.compute_appearance_delta_per_object(
+                frame, self.anchor_graph, current_graph
+            )
+            for oid, app_delta in appearance_deltas.items():
+                if app_delta > 0.15: # threshold
+                    obj = current_graph.objects[oid]
+                    x1, y1, x2, y2 = obj.bbox
+                    roi = frame[y1:y2, x1:x2]
+                    if roi.size > 0:
+                        # Re-embed only that one object using DINOv2
+                        obj.embedding = self.anchor_proc._embed_object(roi)
+                        # Cache new histogram
+                        h = cv2.calcHist([roi], [0, 1, 2], None, [8, 8, 8],
+                                         [0, 256, 0, 256, 0, 256])
+                        obj.appearance_hist = cv2.normalize(h, h).flatten()
+
             reconstructed = self.reconstructor.reconstruct(
                 self.anchor_graph,
                 current_graph,
                 delta,
-                self.anchor_embedding,
+                self.anchor_buffer, # Pass the rolling buffer instead of a single anchor
             )
 
             # Ground truth: full CLIP (only for validation — normally skipped)
@@ -216,6 +264,19 @@ class ADVEPipeline:
             encoder_called  = encoder_called,
         )
 
+        # Extract object metadata and embeddings from active graph
+        objects = []
+        active_graph = self.anchor_graph if refresh else current_graph
+        if active_graph is not None:
+            for obj_id, obj in active_graph.objects.items():
+                if obj.embedding is not None:
+                    objects.append({
+                        "obj_id":     obj_id,
+                        "class_name": obj.class_name,
+                        "bbox":       obj.bbox,
+                        "embedding":  obj.embedding,
+                    })
+
         return {
             "embedding":       reconstructed,
             "is_anchor":       is_anchor,
@@ -224,9 +285,10 @@ class ADVEPipeline:
             "appearance_delta": appearance_delta,
             "cosine_sim":      sim,
             "frame_idx":       frame_idx,
+            "objects":         objects,
         }
 
-    def process_video(self, video_path: str, no_validation: bool = False) -> dict:
+    def process_video(self, video_path: str, no_validation: bool = False, max_frames: Optional[int] = None) -> dict:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise FileNotFoundError(f"Cannot open video: {video_path}")
@@ -242,7 +304,13 @@ class ADVEPipeline:
         frame_idx = 0
         t_start   = time.time()
 
+        import gc
+        import torch
+
         while cap.isOpened():
+            if max_frames is not None and frame_idx >= max_frames:
+                break
+
             ret, frame = cap.read()
             if not ret:
                 break
@@ -253,9 +321,15 @@ class ADVEPipeline:
                 tag = "ANCHOR" if res["is_anchor"] else "DELTA "
                 print(
                     f"  [{frame_idx:>5}] {tag}  "
-                    f"sim={res['cosine_sim']:.4f}  ΔG={res['delta_magnitude']:.4f}  "
-                    f"Δapp={res['appearance_delta']:.4f}"
+                    f"sim={res['cosine_sim']:.4f}  dG={res['delta_magnitude']:.4f}  "
+                    f"dapp={res['appearance_delta']:.4f}"
                 )
+
+            # Periodically free memory to prevent Windows OOM crashes
+            if frame_idx % 30 == 0:
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
 
             frame_idx += 1
 
@@ -282,7 +356,7 @@ class ADVEPipeline:
     # ------------------------------------------------------------------
 
     def _print_summary(self, s: dict) -> None:
-        verdict = "✅ HYPOTHESIS VALIDATED" if s["hypothesis_validated"] else "⚠️  NEEDS REFINEMENT"
+        verdict = "[PASS] HYPOTHESIS VALIDATED" if s["hypothesis_validated"] else "[WARN] NEEDS REFINEMENT"
         print(f"\n{'='*55}")
         print(f"  {verdict}")
         print(f"{'='*55}")
@@ -290,8 +364,8 @@ class ADVEPipeline:
         print(f"  Encoder calls        : {s['encoder_calls']}")
         print(f"  Delta frames         : {s['delta_frames']}")
         print(f"  Encoder savings      : {s['encoder_savings_pct']}%")
-        print(f"  Mean cosine sim (Δ)  : {s['mean_delta_cosine_sim']}")
-        print(f"  Min  cosine sim (Δ)  : {s['min_delta_cosine_sim']}")
-        print(f"  Frames ≥ threshold   : {s['pct_above_threshold']}%")
+        print(f"  Mean cosine sim (d)  : {s['mean_delta_cosine_sim']}")
+        print(f"  Min  cosine sim (d)  : {s['min_delta_cosine_sim']}")
+        print(f"  Frames >= threshold   : {s['pct_above_threshold']}%")
         print(f"  Effective FPS        : {s['effective_fps']}")
         print(f"{'='*55}\n")

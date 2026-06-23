@@ -21,9 +21,10 @@ class TrainingDataGenerator:
 
     def __init__(self, device="cuda" if torch.cuda.is_available() else "cpu"):
         self.device = device
-        self.clip_model, self.clip_prep = clip.load("ViT-B/32", device=device)
-        self.clip_model.eval()
-        self.yolo = YOLO("yolov8n.pt")
+        self.clip_model = None
+        self.clip_prep = None
+        self.clip_dim = None
+        self.yolo = None
 
     def embed(self, frame: np.ndarray) -> np.ndarray:
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -50,14 +51,14 @@ class TrainingDataGenerator:
     def pool_object_embeddings(
         self, objects: dict, max_objects: int = 8
     ) -> np.ndarray:
-        """Pool per-object embeddings to fixed 512-d vector."""
+        """Pool per-object embeddings to fixed clip_dim vector."""
         valid = [
             (obj.area, obj.embedding)
             for obj in objects.values()
             if obj.embedding is not None
         ]
         if not valid:
-            return np.zeros(512, dtype=np.float32)
+            return np.zeros(self.clip_dim, dtype=np.float32)
 
         valid.sort(key=lambda x: -x[0])  # sort by area, largest first
         valid = valid[:max_objects]
@@ -74,6 +75,12 @@ class TrainingDataGenerator:
     ):
         config = Config()
         pipeline = ADVEPipeline(config)
+
+        # Share model instances to avoid duplicate loading DLL/thread conflicts
+        self.clip_model = pipeline.anchor_proc.clip_model
+        self.clip_prep = pipeline.anchor_proc.clip_preprocess
+        self.clip_dim = pipeline.anchor_proc.clip_dim
+        self.yolo = pipeline.yolo
 
         cap = cv2.VideoCapture(video_path)
         samples = []

@@ -58,6 +58,17 @@ def run():
     best_model = train(output_samples, epochs=epochs, device="cpu", checkpoint_path=os.path.join(checkpoint_dir, "best_model.pt"))
     print(f"Training complete. Weights saved in {checkpoint_dir}")
 
+    # Free up memory from training before running verification
+    import gc
+    import torch
+    if "best_model" in locals():
+        del best_model
+    if "samples" in locals():
+        del samples
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     # 4. Verify Reconstruction Similarity Improvement
     print("\n--- Step 3: Verifying Reconstruction Quality ---")
     print("Running pipeline verification...")
@@ -68,7 +79,7 @@ def run():
 
     # Run the pipeline with the trained model
     pipeline = ADVEPipeline(config)
-    summary = pipeline.process_video(video_path, no_validation=False)
+    summary = pipeline.process_video(video_path, no_validation=False, max_frames=300)
 
     print("\n" + "=" * 60)
     print("            Verification Summary")

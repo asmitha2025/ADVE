@@ -7,3 +7,25 @@ scratch/
 outputs_gpu/
 dummy.jpg
 test_baseline_load.py
+
+# Models & Large Weights
+*.pt
+yolov8m.pt
+yolov8n.pt
+adve_v2/yolov8m.pt
+adve_v2/yolov8n.pt
+
+# Transient Media & Cache
+.gradio/
+clips/
+demo_previews/
+demo_videos/
+adve_v2/data/uploads/
+adve_v2/data/bin/
+adve_v2/data/demo_index/
+adve_v2/data/main_index/ocr.db
+adve_v2/data/main_index/metadata.db
+adve_v2/demo_previews/
+adve_v2/demo_videos/
+adve_v2/clips/
+

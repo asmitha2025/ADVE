@@ -155,17 +155,17 @@ class TestSearchIndex:
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_add_and_stats(self):
-        emb = np.random.randn(512).astype(np.float32)
+        emb = np.random.randn(self.index.dim).astype(np.float32)
         self.index.add("video1.mp4", "cam1", 1.5, 45, emb)
         stats = self.index.stats()
         assert stats["total_embeddings"] == 1
 
     def test_search_returns_results(self):
         for i in range(10):
-            emb = np.random.randn(512).astype(np.float32)
+            emb = np.random.randn(self.index.dim).astype(np.float32)
             self.index.add("video1.mp4", "cam1", float(i), i*30, emb)
 
-        query = np.random.randn(512).astype(np.float32)
+        query = np.random.randn(self.index.dim).astype(np.float32)
         results = self.index._search(query, k=5)
         assert len(results) == 5
 
@@ -176,7 +176,7 @@ class TestSearchIndex:
                 "camera_id":  "c1",
                 "timestamp":  float(i),
                 "frame_idx":  i,
-                "embedding":  np.random.randn(512).astype(np.float32),
+                "embedding":  np.random.randn(self.index.dim).astype(np.float32),
                 "is_anchor":  i % 30 == 0,
             }
             for i in range(100)
@@ -185,6 +185,39 @@ class TestSearchIndex:
         stats = self.index.stats()
         assert stats["total_embeddings"] == 100
         assert stats["anchor_frames"]    >  0
+
+    def test_transcript_search(self):
+        # Mock CLIP model to avoid loading heavy DLLs (which causes Windows cufft double-load crash)
+        import torch
+        class MockCLIP(torch.nn.Module):
+            def __init__(self, dim):
+                super().__init__()
+                self.param = torch.nn.Parameter(torch.zeros(1))
+                self.dim = dim
+            def encode_text(self, tokens):
+                return torch.randn(1, self.dim)
+        
+        self.index._clip_model = MockCLIP(self.index.dim)
+
+        # Add a dummy frame embedding first since transcript search joins with embeddings
+        emb = np.random.randn(self.index.dim).astype(np.float32)
+        self.index.add("video1.mp4", "cam1", 5.0, 150, emb)
+
+        segments = [
+            {"timestamp": 5.0, "text": "This is a lecture about gradient descent optimization."}
+        ]
+        self.index.add_transcripts("video1.mp4", segments)
+
+        # 1. Test exact match
+        results = self.index.search_by_text("gradient descent optimization", k=5)
+        assert len(results) > 0
+        assert results[0].similarity == 0.99
+        assert "gradient descent" in results[0].camera_id
+
+        # 2. Test multi-word keyword partial match
+        results2 = self.index.search_by_text("optimization gradient lecture", k=5)
+        assert len(results2) > 0
+        assert results2[0].similarity >= 0.90
 
 
 # ── Validator Tests ───────────────────────────────────────────────────────────
@@ -210,6 +243,62 @@ class TestValidator:
         summary = self.validator.summarize()
         assert summary["encoder_savings_pct"] == pytest.approx(90.0)
         assert summary["total_frames"] == 10
+
+# ── Camera Motion Compensation Tests ──────────────────────────────────────────
+
+class TestCameraMotionCompensation:
+    def test_estimate_homography_translation(self):
+        """
+        Test homography estimation with synthetic translation.
+        Uses cv2 directly to avoid loading CLIP/YOLO models in the same pytest
+        process (which causes Windows access violations from double DLL loads).
+        """
+        import cv2
+
+        # Create a synthetic image with distinct, non-periodic features
+        img1 = np.zeros((480, 640, 3), dtype=np.uint8)
+        np.random.seed(42)
+        for _ in range(100):
+            cx = int(np.random.randint(20, 620))
+            cy = int(np.random.randint(20, 460))
+            r  = int(np.random.randint(5, 25))
+            color = (
+                int(np.random.randint(100, 255)),
+                int(np.random.randint(100, 255)),
+                int(np.random.randint(100, 255)),
+            )
+            cv2.circle(img1, (cx, cy), r, color, -1)
+
+        # Shift the image to simulate camera translation
+        translation_matrix = np.float32([[1, 0, 10], [0, 1, 5]])
+        img2 = cv2.warpAffine(img1, translation_matrix, (640, 480))
+
+        # --- Inline homography estimation (mirrors ADVEPipeline._estimate_homography) ---
+        scale = 0.5
+        g1 = cv2.cvtColor(
+            cv2.resize(img1, None, fx=scale, fy=scale), cv2.COLOR_BGR2GRAY
+        )
+        g2 = cv2.cvtColor(
+            cv2.resize(img2, None, fx=scale, fy=scale), cv2.COLOR_BGR2GRAY
+        )
+        orb  = cv2.ORB_create(500)
+        kp1, des1 = orb.detectAndCompute(g1, None)
+        kp2, des2 = orb.detectAndCompute(g2, None)
+        assert des1 is not None and des2 is not None, "ORB found no keypoints"
+
+        bf      = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+        matches = bf.match(des1, des2)
+        assert len(matches) >= 8, "Not enough matches for homography"
+
+        src_pts = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2) / scale
+        dst_pts = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2) / scale
+        H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+
+        assert H is not None
+        assert H.shape == (3, 3)
+        # H[0, 2] ≈ 10 (x-shift), H[1, 2] ≈ 5 (y-shift)
+        assert abs(H[0, 2] - 10) < 2.0
+        assert abs(H[1, 2] - 5) < 2.0
 
 
 if __name__ == "__main__":

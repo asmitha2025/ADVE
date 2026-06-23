@@ -259,6 +259,11 @@
             border-color: var(--accent-color);
         }
 
+        select.input-control option {
+            background-color: #111827;
+            color: var(--text-main);
+        }
+
         .btn {
             background: var(--accent-gradient);
             border: none;
@@ -445,6 +450,24 @@
                         <div class="progress-bar" id="upload-progress"></div>
                     </div>
                     <p style="font-size: 12px; color: var(--text-muted); text-align: center;" id="upload-status"></p>
+                    
+                    <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-main);">🔗 Index from YouTube Link</p>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=..." style="flex: 1; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 8px 12px; border-radius: 6px; font-size: 13px;">
+                            <button class="btn btn-primary" onclick="indexYouTube()" style="padding: 8px 16px; font-size: 13px; white-space: nowrap; cursor: pointer;">Index URL</button>
+                        </div>
+                        <p id="youtube-status" style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: none;"></p>
+                    </div>
+                </div>
+
+                <!-- Active Tasks Panel -->
+                <div class="card" id="tasks-card" style="display: none;">
+                    <div class="card-title" style="color: var(--pink-accent);">
+                        <span>⚙️</span> Active Ingestion Tasks
+                    </div>
+                    <div id="tasks-container" style="display: flex; flex-direction: column; gap: 15px;">
+                    </div>
                 </div>
 
                 <!-- RTSP stream -->
@@ -473,12 +496,38 @@
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Camera Filter dropdown -->
+                    <div class="form-group">
+                        <label>Filter by Video / Camera Source</label>
+                        <select id="search-camera-filter" class="input-control">
+                            <option value="">-- All Videos & Streams --</option>
+                        </select>
+                    </div>
+
                     <!-- Text query input -->
                     <div class="form-group">
                         <label>Natural Language Description</label>
                         <div style="display: flex; gap: 12px;">
                             <input type="text" id="search-query" class="input-control" placeholder="Describe the scene e.g., 'a group of people walking under trees'..." onkeydown="if(event.key === 'Enter') searchText()">
                             <button class="btn" onclick="searchText()">Search</button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Precision Options Panel -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid var(--panel-border); padding-top: 15px; align-items: center;">
+                        <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin: 0;">
+                            <input type="checkbox" id="search-anchor-only" style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="search-anchor-only" style="cursor: pointer; user-select: none; font-size: 13px; color: var(--text-muted);">CLIP Anchors Only</label>
+                        </div>
+                        
+                        <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin: 0;">
+                            <input type="checkbox" id="search-temporal-dedup" checked style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="search-temporal-dedup" style="cursor: pointer; user-select: none; font-size: 13px; color: var(--text-muted);">Temporal Dedup (8s)</label>
+                        </div>
+
+                        <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 0; margin-left: auto;">
+                            <label style="font-size: 13px; color: var(--text-muted); white-space: nowrap;">Min Similarity: <span id="val-min-similarity" style="color: var(--accent-color); font-weight: 600;">0.35</span></label>
+                            <input type="range" id="search-min-similarity" class="slider-control" min="0.0" max="0.95" step="0.05" value="0.35" style="width: 90px;" oninput="document.getElementById('val-min-similarity').innerText = parseFloat(this.value).toFixed(2)">
                         </div>
                     </div>
 
@@ -513,6 +562,69 @@
     <script>
         const API_BASE = window.location.origin;
 
+        let knownVideosList = [];
+        let lastActiveTasks = {};
+
+        function updateCameraFilterDropdown(videos) {
+            // Check if lists are identical to avoid constantly redrawing
+            const currentVideoPaths = videos.map(v => v.video_path).sort().join(',');
+            const knownVideoPaths = knownVideosList.map(v => v.video_path).sort().join(',');
+            if (currentVideoPaths === knownVideoPaths) return;
+            
+            knownVideosList = videos;
+            const select = document.getElementById('search-camera-filter');
+            const currentValue = select.value;
+            
+            // Keep first option
+            select.innerHTML = '<option value="">-- All Videos & Streams --</option>';
+            
+            videos.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.camera_id;
+                const displayName = v.video_path.replace(/\\/g, '/').split('/').pop();
+                option.textContent = `${displayName} (${v.camera_id})`;
+                select.appendChild(option);
+            });
+            
+            // Restore selection if still exists
+            if (videos.some(v => v.camera_id === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        // Toast Notification System
+        function showToastNotification(message) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.style = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;';
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement('div');
+            toast.style = 'background: #1e1b4b; border: 1px solid var(--pink-accent); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; font-weight: 500; min-width: 250px; display: flex; align-items: center; justify-content: space-between; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);';
+            toast.innerHTML = `
+                <span>${message}</span>
+                <span onclick="this.parentElement.remove()" style="margin-left: 15px; cursor: pointer; opacity: 0.7; font-weight: bold;">✕</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Animation
+            setTimeout(() => {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+            }, 50);
+            
+            // Auto dismiss
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-20px)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 6000);
+        }
+
         // Fetch stats on load & periodically
         async function fetchStats() {
             try {
@@ -528,6 +640,52 @@
                 document.getElementById('stats-anchors').innerText = anchors.toLocaleString();
                 document.getElementById('stats-deltas').innerText = deltas.toLocaleString();
                 document.getElementById('stats-savings').innerText = `${savings}%`;
+
+                // Update dropdown options
+                updateCameraFilterDropdown(data.index.indexed_videos || []);
+
+                // Update active tasks progress bars
+                const activeTasks = data.active_tasks || {};
+                const tasksCard = document.getElementById('tasks-card');
+                const tasksContainer = document.getElementById('tasks-container');
+                
+                const taskKeys = Object.keys(activeTasks);
+                if (taskKeys.length > 0) {
+                    tasksCard.style.display = 'block';
+                    tasksContainer.innerHTML = '';
+                    
+                    taskKeys.forEach(tid => {
+                        const task = activeTasks[tid];
+                        const barHtml = `
+                            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 6px;">
+                                    <span style="color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;">📦 ${task.name}</span>
+                                    <span style="color: var(--pink-accent); font-weight: 600;">${task.progress}%</span>
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">${task.status}</div>
+                                <div class="sim-bar" style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 9999px; overflow: hidden; margin-top: 4px;">
+                                    <div style="height: 100%; width: ${task.progress}%; background: var(--pink-accent); transition: width 0.3s ease;"></div>
+                                </div>
+                            </div>
+                        `;
+                        tasksContainer.innerHTML += barHtml;
+                        
+                        // Alert on status change to Ready to search!
+                        if (task.status === "Ready to search!" && (!lastActiveTasks[tid] || lastActiveTasks[tid].status !== "Ready to search!")) {
+                            showToastNotification(`🎉 Video "${task.name}" is fully indexed and ready to search!`);
+                        }
+                    });
+                } else {
+                    // Check if any previously running tasks finished
+                    Object.keys(lastActiveTasks).forEach(tid => {
+                        if (lastActiveTasks[tid].status !== "Ready to search!" && !lastActiveTasks[tid].status.includes("Failed")) {
+                            showToastNotification(`🎉 Video "${lastActiveTasks[tid].name}" indexing is completed!`);
+                        }
+                    });
+                    tasksCard.style.display = 'none';
+                }
+                
+                lastActiveTasks = activeTasks;
             } catch (err) {
                 console.error("Error fetching stats:", err);
             }
@@ -571,6 +729,45 @@
             };
 
             xhr.send(formData);
+        }
+
+        // Index Video from YouTube URL
+        async function indexYouTube() {
+            const urlInput = document.getElementById('youtube-url-input');
+            const statusEl = document.getElementById('youtube-status');
+            const url = urlInput.value.trim();
+            if (!url) {
+                statusEl.style.display = 'block';
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Please enter a valid YouTube URL';
+                return;
+            }
+
+            statusEl.style.display = 'block';
+            statusEl.style.color = 'var(--text-muted)';
+            statusEl.innerText = 'Submitting YouTube URL for download & indexing...';
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/index/youtube`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (response.ok) {
+                    statusEl.style.color = 'var(--green-accent)';
+                    statusEl.innerText = 'YouTube download & indexing started in background!';
+                    urlInput.value = '';
+                    setTimeout(fetchStats, 2000);
+                } else {
+                    const err = await response.json();
+                    statusEl.style.color = '#ef4444';
+                    statusEl.innerText = `Error: ${err.detail || 'Failed to start indexing'}`;
+                }
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = `Network error: ${e.message}`;
+            }
         }
 
         // Connect RTSP Live feed
@@ -623,8 +820,42 @@
                 
                 // Check if speech match
                 const isSpeech = r.camera_id && r.camera_id.includes('Speech:');
-                const speechText = isSpeech ? r.camera_id.split('Speech:')[1].replace(/[")]/g, '') : '';
+                const speechText = r.text || (isSpeech ? r.camera_id.split('Speech:')[1].replace(/[")]/g, '') : '');
+                const isAnchor = r.is_anchor;
+                const source = r.source || (isSpeech ? 'audio' : 'visual');
+
+                // Construct tag text and styles
+                let tagText = pct + '% Match';
+                let tagStyle = '';
+                if (source === 'audio') {
+                    tagText = 'Speech Match';
+                    tagStyle = 'color: var(--pink-accent); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1);';
+                } else if (source === 'both') {
+                    tagText = pct + '% Match (Visual+Speech)';
+                    tagStyle = 'color: #D97706; border-color: rgba(217, 119, 6, 0.3); background: rgba(217, 119, 6, 0.1);';
+                } else if (isAnchor) {
+                    tagText = pct + '% Match (Anchor)';
+                    tagStyle = 'color: var(--green-accent); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1);';
+                }
+
+                // Construct source badge
+                let sourceBadge = '';
+                if (source === 'visual') {
+                    sourceBadge = '<span style="background:#1976D2;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px;display:inline-block;vertical-align:middle;">👁 Visual</span>';
+                } else if (source === 'audio') {
+                    sourceBadge = '<span style="background:#7B1FA2;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px;display:inline-block;vertical-align:middle;">🎤 Audio</span>';
+                } else if (source === 'both') {
+                    sourceBadge = '<span style="background:#2E7D32;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px;display:inline-block;vertical-align:middle;">⚡ Visual + Audio</span>';
+                }
                 
+                // Construct object chips
+                let objectChips = '';
+                if (r.objects && r.objects.length > 0) {
+                    objectChips = '<div class="object-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;margin-bottom:2px;">' +
+                        r.objects.map(obj => `<span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#d1d5db;padding:1px 6px;border-radius:9999px;font-size:11px;font-weight:500;display:inline-block;white-space:nowrap;">🏷️ ${obj}</span>`).join('') +
+                        '</div>';
+                }
+
                 // Construct frame url
                 const frameUrl = `${API_BASE}/v1/frame?video_id=${encodeURIComponent(r.video_path)}&frame_idx=${r.frame_idx}`;
 
@@ -633,17 +864,19 @@
                 card.innerHTML = `
                     <div class="thumbnail-container">
                         <img src="${frameUrl}" alt="Frame matching result" onerror="this.src='https://placehold.co/400x225/1f2937/9ca3af?text=Frame+Image'">
-                        <div class="similarity-tag" style="${isSpeech ? 'color: var(--pink-accent); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1);' : ''}">${isSpeech ? 'Speech Match' : pct + '% Match'}</div>
+                        <div class="similarity-tag" style="${tagStyle}">${tagText}</div>
                     </div>
                     <div class="result-info">
                         <div class="result-title" title="${r.video_path}">${r.video_path}</div>
                         <div class="result-meta">
                             <span>⏱️ ${timeStr}</span>
                             <span>🎞️ Frame ${r.frame_idx}</span>
+                            ${sourceBadge}
                         </div>
-                        ${isSpeech ? `<div style="font-size: 13px; color: var(--pink-accent); font-weight: 500; font-style: italic; margin-top: 6px; line-height: 1.4;">"${speechText}"</div>` : ''}
-                        <div class="sim-bar">
-                            <div class="sim-fill" style="width: ${pct}%; ${isSpeech ? 'background: var(--pink-accent);' : ''}"></div>
+                        ${speechText ? `<div style="font-size: 13px; color: var(--pink-accent); font-weight: 500; font-style: italic; margin-top: 6px; line-height: 1.4;">"${speechText}"</div>` : ''}
+                        ${objectChips}
+                        <div class="sim-bar" style="margin-top:8px;">
+                            <div class="sim-fill" style="width: ${pct}%; ${source === 'audio' ? 'background: var(--pink-accent);' : source === 'both' ? 'background: #D97706;' : isAnchor ? 'background: var(--green-accent);' : ''}"></div>
                         </div>
                     </div>
                 `;
@@ -655,13 +888,24 @@
         async function searchText() {
             const query = document.getElementById('search-query').value;
             const k = parseInt(document.getElementById('search-k').value) || 8;
+            const cameraId = document.getElementById('search-camera-filter').value;
+            const anchorOnly = document.getElementById('search-anchor-only').checked;
+            const temporalDedup = document.getElementById('search-temporal-dedup').checked;
+            const minSimilarity = parseFloat(document.getElementById('search-min-similarity').value) || 0.0;
             if (!query.trim()) return;
 
             try {
                 const res = await fetch(`${API_BASE}/v1/search/text`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, k: k })
+                    body: JSON.stringify({ 
+                        query: query, 
+                        k: k, 
+                        camera_id: cameraId || null,
+                        anchor_only: anchorOnly,
+                        temporal_dedup: temporalDedup,
+                        min_similarity: minSimilarity
+                    })
                 });
                 const data = await res.json();
                 displayResults(data);
@@ -674,12 +918,21 @@
         async function searchImage(file) {
             if (!file) return;
             const k = parseInt(document.getElementById('search-k').value) || 8;
+            const cameraId = document.getElementById('search-camera-filter').value;
+            const anchorOnly = document.getElementById('search-anchor-only').checked;
+            const temporalDedup = document.getElementById('search-temporal-dedup').checked;
+            const minSimilarity = parseFloat(document.getElementById('search-min-similarity').value) || 0.0;
 
             const formData = new FormData();
             formData.append("file", file);
 
+            let url = `${API_BASE}/v1/search/image?k=${k}&anchor_only=${anchorOnly}&temporal_dedup=${temporalDedup}&min_similarity=${minSimilarity}`;
+            if (cameraId) {
+                url += `&camera_id=${encodeURIComponent(cameraId)}`;
+            }
+
             try {
-                const res = await fetch(`${API_BASE}/v1/search/image?k=${k}`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     body: formData
                 });
