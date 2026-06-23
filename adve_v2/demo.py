@@ -870,9 +870,9 @@ def chatbot_rag_answer(question: str, history: list):
             "text": "Analyze both the visual details in the frames and the spoken dialogue transcripts to answer the user's question accurately."
         })
         
-        print("[Chat RAG] Sending multi-modal query to Groq Llama 3.2 Vision...")
+        print("[Chat RAG] Sending multi-modal query to Groq Llama 4 Scout Vision...")
         response = client.chat.completions.create(
-            model="llama-3.2-11b-vision-preview",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[{"role": "user", "content": prompt_content}],
             max_tokens=400,
             temperature=0.2
