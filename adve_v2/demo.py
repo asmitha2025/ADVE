@@ -510,7 +510,7 @@ def get_dynamic_duration(video_path: str, start_time: float, default_duration: f
 
 def search_and_retrieve(query: str, clip_duration: float, use_dynamic_duration: bool, anchor_only: bool = False, min_similarity: float = 0.0):
     """Search natural language and return matching frame images and video clips."""
-    global active_search_results, active_video_path
+    global active_search_results, active_video_path, global_unified_search
     if not active_video_path:
         return (
             "No video has been indexed yet. Please index a video first.", 
