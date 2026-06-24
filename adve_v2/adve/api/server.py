@@ -279,6 +279,10 @@ def index_video_task(video_path: str, video_id: str, task_id: Optional[str] = No
             result    = pipeline.process_frame(frame, idx)
         timestamp = idx / fps
 
+        # Extract detected object labels for Two-Stage search metadata
+        obj_classes = [obj["class_name"] for obj in result.get("objects", [])]
+        obj_metadata = ", ".join(set(obj_classes))
+
         # 1. Add global frame embedding
         batch.append({
             "video_path": video_id,
@@ -287,6 +291,7 @@ def index_video_task(video_path: str, video_id: str, task_id: Optional[str] = No
             "frame_idx":  idx,
             "embedding":  result["embedding"],
             "is_anchor":  result["is_anchor"],
+            "text":       obj_metadata,
         })
 
         if result["is_anchor"]:
@@ -515,99 +520,28 @@ async def search_text(request: TextSearchRequest):
     raw_results = search_index.search_by_text(request.query, k=query_k)
     
     scene_matches = []
-    object_matches = []
     for r in raw_results:
         if "[AUDIO]" in r.camera_id or "Speech:" in r.camera_id:
             continue
-        elif "(Object:" in r.camera_id:
-            object_matches.append(r)
-        else:
-            scene_matches.append(r)
+        if "(Object:" in r.camera_id:
+            continue
+        scene_matches.append(r)
 
-    # Group matches by (video_path, frame_idx)
+    # Group matches by (video_path, frame_idx) to retain only the highest similarity
     from adve.search.index import normalize_video_path
     frames_dict = {}
-    
     for r in scene_matches:
         key = (normalize_video_path(r.video_path), r.frame_idx)
         if key not in frames_dict:
-            frames_dict[key] = {
-                "video_path": r.video_path,
-                "camera_id":  r.camera_id,
-                "timestamp":  r.timestamp,
-                "frame_idx":  r.frame_idx,
-                "similarity": r.similarity,
-                "is_anchor":  r.is_anchor,
-                "object_matches": [],
-                "source_has_scene": True
-            }
+            frames_dict[key] = r
         else:
-            if r.similarity > frames_dict[key]["similarity"]:
-                frames_dict[key]["similarity"] = r.similarity
-                frames_dict[key]["is_anchor"] = r.is_anchor
+            if r.similarity > frames_dict[key].similarity:
+                frames_dict[key] = r
 
-    for r in object_matches:
-        key = (normalize_video_path(r.video_path), r.frame_idx)
-        if key not in frames_dict:
-            frames_dict[key] = {
-                "video_path": r.video_path,
-                "camera_id":  r.video_path,
-                "timestamp":  r.timestamp,
-                "frame_idx":  r.frame_idx,
-                "similarity": 0.15,  # Baseline low similarity
-                "is_anchor":  r.is_anchor,
-                "object_matches": [],
-                "source_has_scene": False
-            }
-        frames_dict[key]["object_matches"].append(r)
-
-    # Process visual results with boost and objects tagging
-    visual_results = []
-    
-    class ProcessedVisualResult:
-        def __init__(self, video_path, camera_id, timestamp, frame_idx, similarity, is_anchor, objects):
-            self.video_path = video_path
-            self.camera_id = camera_id
-            self.timestamp = timestamp
-            self.frame_idx = frame_idx
-            self.similarity = similarity
-            self.is_anchor = is_anchor
-            self.objects = objects
-
-    for key, info in frames_dict.items():
-        if info["source_has_scene"]:
-            raw_boost = max([obj.similarity for obj in info["object_matches"]]) if info["object_matches"] else 0.0
-            boost = max(0.0, raw_boost - 0.24)
-            final_sim = min(1.0, info["similarity"] + boost * 0.8)
-        else:
-            raw_boost = max([obj.similarity for obj in info["object_matches"]]) if info["object_matches"] else 0.0
-            final_sim = max(0.0, raw_boost - 0.06) if raw_boost > 0.24 else 0.12
-        
-        # Query database for all objects at this frame to build tags list
-        cursor = search_index.db.execute(
-            "SELECT camera_id FROM embeddings WHERE video_path = ? AND frame_idx = ? AND camera_id LIKE '%(Object:%'",
-            (info["video_path"], info["frame_idx"])
-        )
-        object_labels = []
-        for row in cursor.fetchall():
-            cam_id = row[0]
-            try:
-                label = cam_id.split("(Object: ")[1].rstrip(")")
-                object_labels.append(label)
-            except Exception:
-                pass
-        
-        visual_results.append(
-            ProcessedVisualResult(
-                video_path = info["video_path"],
-                camera_id  = info["camera_id"],
-                timestamp  = info["timestamp"],
-                frame_idx  = info["frame_idx"],
-                similarity = final_sim,
-                is_anchor  = info["is_anchor"],
-                objects    = list(set(object_labels))
-            )
-        )
+    visual_results = list(frames_dict.values())
+    for r in visual_results:
+        if r.objects is None:
+            r.objects = []
     
     # 1. Filter by camera_id
     if request.camera_id:

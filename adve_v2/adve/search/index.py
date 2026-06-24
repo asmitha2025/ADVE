@@ -25,6 +25,8 @@ class SearchResult:
     similarity:  float
     is_anchor:   bool = False
     thumbnail:   Optional[str] = None  # base64 jpg
+    text:        Optional[str] = ""
+    objects:     Optional[List[str]] = None
 
 
 class ADVESearchIndex:
@@ -123,6 +125,7 @@ class ADVESearchIndex:
         frame_idx:  int,
         embedding:  np.ndarray,
         is_anchor:  bool = False,
+        text:       str = "",
     ):
         # Normalize to unit sphere
         emb = embedding.astype(np.float32)
@@ -131,13 +134,13 @@ class ADVESearchIndex:
         self.faiss_index.add(emb.reshape(1, -1))
 
         self.db.execute(
-            "INSERT INTO embeddings (video_path, camera_id, timestamp, frame_idx, is_anchor) VALUES (?, ?, ?, ?, ?)",
-            (normalize_video_path(video_path), camera_id, timestamp, frame_idx, int(is_anchor))
+            "INSERT INTO embeddings (video_path, camera_id, timestamp, frame_idx, is_anchor, text) VALUES (?, ?, ?, ?, ?, ?)",
+            (normalize_video_path(video_path), camera_id, timestamp, frame_idx, int(is_anchor), text)
         )
         self.db.commit()
         self.save()
 
-    def add_batch(self, records: List[Dict], text_col: bool = False):
+    def add_batch(self, records: List[Dict], text_col: bool = True):
         """Batch insert for efficiency."""
         if not records:
             return
@@ -150,20 +153,12 @@ class ADVESearchIndex:
 
         self.faiss_index.add(embeddings)
 
-        if text_col:
-            self.db.executemany(
-                "INSERT INTO embeddings (video_path, camera_id, timestamp, frame_idx, is_anchor, text) VALUES (?, ?, ?, ?, ?, ?)",
-                [(normalize_video_path(r["video_path"]), r["camera_id"], r["timestamp"],
-                  r["frame_idx"], int(r.get("is_anchor", False)), r.get("text", ""))
-                 for r in records]
-            )
-        else:
-            self.db.executemany(
-                "INSERT INTO embeddings (video_path, camera_id, timestamp, frame_idx, is_anchor) VALUES (?, ?, ?, ?, ?)",
-                [(normalize_video_path(r["video_path"]), r["camera_id"], r["timestamp"],
-                  r["frame_idx"], int(r.get("is_anchor", False)))
-                 for r in records]
-            )
+        self.db.executemany(
+            "INSERT INTO embeddings (video_path, camera_id, timestamp, frame_idx, is_anchor, text) VALUES (?, ?, ?, ?, ?, ?)",
+            [(normalize_video_path(r["video_path"]), r["camera_id"], r["timestamp"],
+              r["frame_idx"], int(r.get("is_anchor", False)), r.get("text", ""))
+             for r in records]
+        )
         self.db.commit()
         self.save()
 
@@ -229,7 +224,7 @@ class ADVESearchIndex:
         query_vec = text_emb.cpu().numpy().astype(np.float32).flatten()
         
         # 1. Search visual features via FAISS
-        visual_results = self._search(query_vec, k)
+        visual_results = self._search(query_vec, k, query=query)
         
         # 2. Search speech transcripts via SQLite using keyword matching
         audio_results = []
@@ -331,9 +326,15 @@ class ADVESearchIndex:
         query_vec = emb.cpu().numpy().astype(np.float32).flatten()
         return self._search(query_vec, k)
 
-    def _search(self, query_vec: np.ndarray, k: int) -> List[SearchResult]:
+    def _search(self, query_vec: np.ndarray, k: int, query: Optional[str] = None) -> List[SearchResult]:
         if self.faiss_index.ntotal == 0:
             return []
+
+        # Get query words for object matching Stage 2
+        query_words = []
+        if query:
+            query_words = [w.lower().strip(",.!?\"'") for w in query.split()]
+            query_words = [w for w in query_words if len(w) > 2]
 
         k = min(k, self.faiss_index.ntotal)
         scores, indices = self.faiss_index.search(query_vec.reshape(1, -1), k)
@@ -343,18 +344,42 @@ class ADVESearchIndex:
             if idx < 0:
                 continue
             row = self.db.execute(
-                "SELECT video_path, camera_id, timestamp, frame_idx, is_anchor "
+                "SELECT video_path, camera_id, timestamp, frame_idx, is_anchor, text "
                 "FROM embeddings WHERE id=?", (int(idx) + 1,)
             ).fetchone()
 
             if row:
+                video_path = normalize_video_path(row[0])
+                camera_id  = row[1]
+                timestamp  = row[2]
+                frame_idx  = row[3]
+                is_anchor  = bool(row[4])
+                base_sim   = float(score)
+                objects_str = row[5] if row[5] else ""
+
+                # Stage 2: Boost similarity if query contains any of the detected object class names
+                boost = 0.0
+                detected_objs = []
+                if objects_str:
+                    detected_objs = [obj.strip().lower() for obj in objects_str.split(",") if obj.strip()]
+                    if query_words:
+                        # Check overlap
+                        matched_objs = [w for w in query_words if w in detected_objs]
+                        if matched_objs:
+                            # Apply a similarity boost (e.g. 0.08 per matched object, max boost 0.15)
+                            boost = min(0.15, 0.08 * len(matched_objs))
+
+                final_sim = min(1.0, base_sim + boost)
+
                 results.append(SearchResult(
-                    video_path = normalize_video_path(row[0]),
-                    camera_id  = row[1],
-                    timestamp  = row[2],
-                    frame_idx  = row[3],
-                    similarity = float(score),
-                    is_anchor  = bool(row[4]),
+                    video_path = video_path,
+                    camera_id  = camera_id,
+                    timestamp  = timestamp,
+                    frame_idx  = frame_idx,
+                    similarity = final_sim,
+                    is_anchor  = is_anchor,
+                    text       = objects_str,
+                    objects    = detected_objs,
                 ))
 
         return results

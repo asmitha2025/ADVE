@@ -278,9 +278,21 @@ def index_video(video_path: str, sampling_rate: float = 5.0, use_adaptive_fps: b
             last_processed_idx = idx
             result = pipeline.process_frame(frame, idx, no_validation=True)
             
+            # Extract detected object labels for Two-Stage search metadata
+            obj_classes = [obj["class_name"] for obj in result.get("objects", [])]
+            obj_metadata = ", ".join(set(obj_classes))
+            
             # Save all processed frames (both anchors and reconstructed deltas) to the search index
             timestamp = idx / fps
-            search_index.add(video_path, "youtube_cam", timestamp, idx, result["embedding"], is_anchor=result["is_anchor"])
+            search_index.add(
+                video_path,
+                "youtube_cam",
+                timestamp,
+                idx,
+                result["embedding"],
+                is_anchor=result["is_anchor"],
+                text=obj_metadata
+            )
             
             if result["is_anchor"]:
                 anchors_count += 1
