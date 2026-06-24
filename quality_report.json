@@ -1,0 +1,74 @@
+{
+  "summary": {
+    "total_tested": 2,
+    "excellent_or_good": 2,
+    "needs_work": 0,
+    "mean_cosine_sim": 0.9469,
+    "mean_savings": 96.0,
+    "production_ready": true
+  },
+  "results": [
+    {
+      "video_type": "cctv",
+      "video_path": "Input video/MOT17-02-SDP-raw.webm",
+      "total_frames": 600,
+      "processed_frames": 100,
+      "anchor_frames": 4,
+      "encoder_savings": 96.0,
+      "mean_cosine_sim": 0.9469,
+      "min_cosine_sim": 0.8598,
+      "pct_above_085": 100.0,
+      "indexing_time_sec": 27.9,
+      "search_results": [
+        {
+          "query": "person entering",
+          "top_score": 0.2628,
+          "works": true
+        },
+        {
+          "query": "vehicle moving",
+          "top_score": 0.2331,
+          "works": true
+        },
+        {
+          "query": "empty scene",
+          "top_score": 0.2402,
+          "works": true
+        }
+      ],
+      "issues_found": [],
+      "verdict": "EXCELLENT"
+    },
+    {
+      "video_type": "street",
+      "video_path": "Input video/MOT17-02-SDP-raw.webm",
+      "total_frames": 600,
+      "processed_frames": 100,
+      "anchor_frames": 4,
+      "encoder_savings": 96.0,
+      "mean_cosine_sim": 0.9469,
+      "min_cosine_sim": 0.8598,
+      "pct_above_085": 100.0,
+      "indexing_time_sec": 11.3,
+      "search_results": [
+        {
+          "query": "pedestrian walking",
+          "top_score": 0.2716,
+          "works": true
+        },
+        {
+          "query": "car passing",
+          "top_score": 0.2278,
+          "works": true
+        },
+        {
+          "query": "crowd",
+          "top_score": 0.2461,
+          "works": true
+        }
+      ],
+      "issues_found": [],
+      "verdict": "EXCELLENT"
+    }
+  ]
+}
