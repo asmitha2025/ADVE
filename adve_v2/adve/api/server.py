@@ -389,6 +389,12 @@ def index_youtube_task(url: str, task_id: str):
         "outtmpl": os.path.join(UPLOADS_DIR, "%(id)s.%(ext)s"),
         "quiet": True,
         "no_warnings": True,
+        "nocheckcertificate": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"]
+            }
+        },
         "progress_hooks": [ytdl_hook]
     }
     

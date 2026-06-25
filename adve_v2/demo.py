@@ -153,6 +153,12 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
             "force_keyframes_at_cuts": True,
             "quiet": True,
             "no_warnings": True,
+            "nocheckcertificate": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"]
+                }
+            },
             "progress_hooks": [_progress_hook],
         }
         progress(0.10, desc="Starting download (first 5 minutes)...")
@@ -162,6 +168,12 @@ def download_youtube(url: str, progress=gr.Progress()) -> str:
             "outtmpl": "demo_videos/%(id)s.%(ext)s",
             "quiet": True,
             "no_warnings": True,
+            "nocheckcertificate": True,
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"]
+                }
+            },
             "progress_hooks": [_progress_hook],
         }
         progress(0.10, desc="ffmpeg not found — downloading full video in low-res...")
