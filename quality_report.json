@@ -1,69 +1,100 @@
 {
   "summary": {
-    "total_tested": 2,
-    "excellent_or_good": 2,
+    "total_tested": 3,
+    "excellent_or_good": 3,
     "needs_work": 0,
-    "mean_cosine_sim": 0.9469,
-    "mean_savings": 96.0,
+    "mean_cosine_sim": 0.9068,
+    "mean_savings": 90.0,
     "production_ready": true
   },
   "results": [
     {
-      "video_type": "cctv",
-      "video_path": "Input video/MOT17-02-SDP-raw.webm",
+      "video_type": "lecture",
+      "video_path": "demo_videos/5sLYAQS9sWQ.mp4",
       "total_frames": 600,
-      "processed_frames": 100,
-      "anchor_frames": 4,
-      "encoder_savings": 96.0,
-      "mean_cosine_sim": 0.9469,
-      "min_cosine_sim": 0.8598,
-      "pct_above_085": 100.0,
-      "indexing_time_sec": 27.9,
+      "processed_frames": 120,
+      "anchor_frames": 16,
+      "encoder_savings": 97.3,
+      "mean_cosine_sim": 0.8873,
+      "min_cosine_sim": 0.7743,
+      "pct_above_085": 73.9,
+      "indexing_time_sec": 17.8,
       "search_results": [
         {
-          "query": "person entering",
-          "top_score": 0.2628,
+          "query": "person at whiteboard",
+          "top_score": 0.2701,
           "works": true
         },
         {
-          "query": "vehicle moving",
-          "top_score": 0.2331,
+          "query": "mathematical formula",
+          "top_score": 0.2435,
           "works": true
         },
         {
-          "query": "empty scene",
-          "top_score": 0.2402,
+          "query": "student question",
+          "top_score": 0.2413,
           "works": true
         }
       ],
       "issues_found": [],
-      "verdict": "EXCELLENT"
+      "verdict": "GOOD"
     },
     {
-      "video_type": "street",
-      "video_path": "Input video/MOT17-02-SDP-raw.webm",
+      "video_type": "product_demo",
+      "video_path": "demo_videos/WDniaIOralA.mp4",
       "total_frames": 600,
       "processed_frames": 100,
-      "anchor_frames": 4,
-      "encoder_savings": 96.0,
-      "mean_cosine_sim": 0.9469,
-      "min_cosine_sim": 0.8598,
-      "pct_above_085": 100.0,
-      "indexing_time_sec": 11.3,
+      "anchor_frames": 60,
+      "encoder_savings": 90.0,
+      "mean_cosine_sim": 0.8989,
+      "min_cosine_sim": 0.7872,
+      "pct_above_085": 82.8,
+      "indexing_time_sec": 33.7,
       "search_results": [
         {
-          "query": "pedestrian walking",
-          "top_score": 0.2716,
+          "query": "product close up",
+          "top_score": 0.2569,
           "works": true
         },
         {
-          "query": "car passing",
-          "top_score": 0.2278,
+          "query": "feature demonstration",
+          "top_score": 0.2554,
           "works": true
         },
         {
-          "query": "crowd",
-          "top_score": 0.2461,
+          "query": "comparison",
+          "top_score": 0.2562,
+          "works": true
+        }
+      ],
+      "issues_found": [],
+      "verdict": "GOOD"
+    },
+    {
+      "video_type": "cctv",
+      "video_path": "demo_videos/KMJS66jBtVQ.mp4",
+      "total_frames": 600,
+      "processed_frames": 300,
+      "anchor_frames": 104,
+      "encoder_savings": 82.7,
+      "mean_cosine_sim": 0.9341,
+      "min_cosine_sim": 0.8361,
+      "pct_above_085": 99.7,
+      "indexing_time_sec": 76.5,
+      "search_results": [
+        {
+          "query": "person entering",
+          "top_score": 0.304,
+          "works": true
+        },
+        {
+          "query": "vehicle moving",
+          "top_score": 0.2489,
+          "works": true
+        },
+        {
+          "query": "empty scene",
+          "top_score": 0.2283,
           "works": true
         }
       ],

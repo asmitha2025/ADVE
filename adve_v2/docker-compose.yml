@@ -1,0 +1,86 @@
+# ADVE Production Docker Compose
+# Runs: FastAPI + Redis + PostgreSQL + Nginx
+# Deploy: docker compose up -d
+
+version: "3.9"
+
+services:
+
+  # ── Main API ────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DEVICE=cuda
+      - DATABASE_URL=postgresql://adve:adve_pass@db:5432/adve
+      - REDIS_URL=redis://redis:6379
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - video_storage:/app/data/videos
+      - index_storage:/app/data/index
+      - model_cache:/root/.cache
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # ── Database ─────────────────────────────────────────────────────────────
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=adve
+      - POSTGRES_USER=adve
+      - POSTGRES_PASSWORD=adve_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ── Redis (job queue) ─────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # ── Nginx (reverse proxy + SSL) ──────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ── Gradio Demo ──────────────────────────────────────────────────────────
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python app.py --port 7860
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - API_URL=http://api:8000
+    ports:
+      - "7860:7860"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  video_storage:
+  index_storage:
+  model_cache:

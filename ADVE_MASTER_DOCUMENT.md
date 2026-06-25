@@ -608,4 +608,4 @@ Run the PoC. Get that number. Everything follows.
 ---
 
 *Document version 1.0 — ADVE Project*
-*Author: Asmihari / Asmitha (PTIS Research Group)*
+*Author: Asmitha (PTIS Research Group)*

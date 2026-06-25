@@ -1110,11 +1110,11 @@ from setuptools import setup, find_packages
 setup(
     name             = "adve",
     version          = "2.0.0",
-    author           = "Hariharan M",
+    author           = "Asmitha",
     description      = "Anchor-Delta Video Embedding for efficient semantic video understanding",
     long_description = open("README.md").read(),
     long_description_content_type = "text/markdown",
-    url              = "https://github.com/Hariharan-1828/ADVE",
+    url              = "https://github.com/asmitha2025/ADVE",
     packages         = find_packages(),
     python_requires  = ">=3.9",
     install_requires = [
@@ -1316,7 +1316,7 @@ Month 2 — Learned Reconstruction (v1.1)
 
 Month 3 — API Server (v2.0)
   ✓ FastAPI server packaged and deployable
-  ✓ Docker image: docker pull hariharan1828/adve
+  ✓ Docker image: docker pull asmitha2025/adve
   ✓ One-click deploy on AWS/GCP/DigitalOcean
   ✓ Simple dashboard for video upload + search
   Goal: first beta user (free tier)

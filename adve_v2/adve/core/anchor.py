@@ -2,9 +2,6 @@ import numpy as np
 import cv2
 import torch
 import clip
-import timm
-import torch.nn as nn
-from torchvision import transforms
 from PIL import Image
 from ultralytics import YOLO
 from typing import Tuple
@@ -16,8 +13,8 @@ from adve.core.spatial_graph import SpatialGraph, ObjectState
 class AnchorProcessor:
     """
     Processes anchor (keyframe) frames.
-    Runs full CLIP on the whole frame AND DINOv2 on each detected object's RoI.
-    Builds a SpatialGraph with per-object embeddings projected into CLIP space.
+    Runs full CLIP on the whole frame AND on each detected object's RoI.
+    Builds a SpatialGraph with per-object embeddings.
     """
 
     def __init__(self, config: Config, yolo: YOLO, clip_model=None, clip_preprocess=None):
@@ -36,23 +33,6 @@ class AnchorProcessor:
                 config.CLIP_MODEL, device=self.device
             )
             self.clip_dim = self.clip_model.visual.output_dim
-
-        # DINOv2 for object crops (Improvement 4)
-        dino_device = config.DEVICE  # run DINOv2 on GPU for speed
-        self.dino = timm.create_model(
-            "vit_small_patch14_dinov2",
-            pretrained=True,
-            num_classes=0,  # remove classifier head
-        ).to(dino_device).eval()
-
-        self.dino_transforms = transforms.Compose([
-            transforms.Resize((518, 518)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-
-        # Project DINOv2 (384-d) → CLIP space (512-d or 768-d)
-        self.proj = nn.Linear(384, self.clip_dim).to(dino_device)
 
     # ------------------------------------------------------------------
     # Public
@@ -123,22 +103,8 @@ class AnchorProcessor:
         return self._embed(frame)
 
     def _embed_object(self, roi: np.ndarray) -> np.ndarray:
-        """Embed an object crop using DINOv2 and project to CLIP space."""
-        if roi is None or roi.size == 0:
-            return np.zeros(self.clip_dim, dtype=np.float32)
-
-        rgb = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
-        pil = Image.fromarray(rgb)
-        
-        dino_device = self.config.DEVICE
-        t = self.dino_transforms(pil).unsqueeze(0).to(dino_device)
-
-        with torch.no_grad():
-            feat = self.dino(t)          # 384-d
-            emb  = self.proj(feat)       # clip_dim-d
-            emb  = emb / emb.norm(dim=-1, keepdim=True)
-
-        return emb.cpu().numpy().flatten().astype(np.float32)
+        """Embed an object crop using the standard CLIP visual encoder."""
+        return self._embed(roi)
 
     def _embed(self, frame: np.ndarray) -> np.ndarray:
         if frame is None or frame.size == 0:
