@@ -31,6 +31,39 @@ index_dir = os.path.join(current_dir, "data", "demo_index")
 os.makedirs(index_dir, exist_ok=True)
 search_index = ADVESearchIndex(index_dir)
 
+# YOLO-World dynamic object detection model (lazy-loaded on demand at search time)
+yolo_world_model = None
+
+def get_yolo_world():
+    global yolo_world_model
+    if yolo_world_model is None:
+        try:
+            print("[YOLO-World] Loading yolov8s-worldv2.pt model...")
+            from ultralytics import YOLOWorld
+            yolo_world_model = YOLOWorld("yolov8s-worldv2.pt")
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            yolo_world_model.to(device)
+            print("[YOLO-World] Loaded successfully.")
+        except Exception as e:
+            print(f"[YOLO-World Warning] Failed to load YOLO-World model: {e}")
+            yolo_world_model = False
+    return yolo_world_model
+
+def draw_yolo_world_boxes(frame, query: str):
+    model = get_yolo_world()
+    if not model:
+        return frame
+    try:
+        model.set_classes([query])
+        # Use conf=0.15 for flexible zero-shot matching
+        results = model.predict(frame, conf=0.15, verbose=False, device=model.device)
+        if results and len(results) > 0 and len(results[0]) > 0:
+            return results[0].plot()
+    except Exception as e:
+        print(f"[YOLO-World Error] Failed to run prediction: {e}")
+    return frame
+
 # Warm up CLIP and Whisper models on the main thread to prevent thread-safety crashes on Windows
 try:
     print("[Demo Startup] Warming up CLIP text encoder...")
@@ -708,8 +741,9 @@ def search_and_retrieve(query: str, clip_duration: float, use_dynamic_duration: 
         cap.release()
         
         if ret:
+            annotated = draw_yolo_world_boxes(frame, query)
             preview_path = os.path.join("demo_previews", f"match_{i}_{r.timestamp:.1f}.jpg")
-            cv2.imwrite(preview_path, frame)
+            cv2.imwrite(preview_path, annotated)
             previews.append((preview_path, f"{r.timestamp:.1f}s (Match: {r.similarity * 100:.1f}%)"))
             
     # Extract video clips for top 3 results
@@ -938,8 +972,9 @@ def chatbot_chat_flow(message: str, history: list, clip_duration: float, use_dyn
             ret, frame = cap.read()
             cap.release()
             if ret:
+                annotated = draw_yolo_world_boxes(frame, message)
                 preview_path = os.path.join("demo_previews", f"chat_match_{i}_{r.timestamp:.1f}.jpg")
-                cv2.imwrite(preview_path, frame)
+                cv2.imwrite(preview_path, annotated)
                 previews.append((preview_path, f"{r.timestamp:.1f}s (Match: {r.similarity * 100:.1f}%)"))
                 
         # Extract clips for top 3 matching moments
